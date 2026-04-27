@@ -17,7 +17,7 @@ public class VocePopolaDB {
     protected VocePopolaDB() {}
     
     
-    public boolean isCaricatoComuniEProvince() {
+    public boolean getCaricatoComuniEProvince() {
         return caricatoComuniEProvince;
     }
 
