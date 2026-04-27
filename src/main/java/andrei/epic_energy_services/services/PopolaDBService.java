@@ -4,8 +4,11 @@ import andrei.epic_energy_services.entities.VocePopolaDB;
 import andrei.epic_energy_services.exceptions.PopolaDBHaTroppeVociException;
 import andrei.epic_energy_services.repositories.PopolaDBRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,6 +17,32 @@ public class PopolaDBService {
     
     @Autowired
     private PopolaDBRepository popolaDBRepository;
+
+
+    /**
+     * Metodo principale per popolare il DB.
+     * Puoi invocare solo questo per eseguire l'intera funzionalità
+     * di popolamento del DB.
+     */
+    public void popolaDBComuniEProvinceSeDevo(String pathCsvComuni, String pathCsvProvince) throws PopolaDBHaTroppeVociException, IOException {
+        boolean devoPopolareDB = this.devoPopolareDBComuniEProvince();
+
+        // se non devo popolare il DB, mi fermo
+        if(!devoPopolareDB) {
+            return;
+        }
+
+        // carica citta e province in DB
+        // usa libreria per leggere il CSV?
+        
+        // ClassPathResource resource = new ClassPathResource(pathCsvComuni);
+        //
+        // InputStream inputStream = resource.getInputStream();
+        //
+        // System.out.println(inputStream);
+        
+    }
+    
 
     /**
      * Ottieni tutte le voci della tabella popola_db.

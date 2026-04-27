@@ -19,27 +19,13 @@ public class PopolaDB implements CommandLineRunner {
     
     @Override
     public void run(String... args) throws Exception {
-        // verifica se, nella tabella popola_db,
-        // il campo caricato_comuni ha valore true
-        // il campoe caricato_province ha valore true
-        // System.out.println("runner works");
-
-        boolean devoPopolareDB = this.popolaDBService.devoPopolareDBComuniEProvince();
-
-        System.out.println(devoPopolareDB);
         
-        // se non esiste nessuna riga, popola il DB con comuni e province, 
-        // poi aggiungi la riga che con "caricato comuni e province" = true
+        // la path dalla directory /resources
+        String pathCsvComuni = "popola_db/comuni-italiani.csv";
+        String pathCsvProvince = "popola_db/province-italiane.csv";
         
-        // se esiste esattamente una riga, vedi quale valore
-        // il campo "caricato comuni e province ha"
+        this.popolaDBService.popolaDBComuniEProvinceSeDevo(pathCsvComuni, pathCsvProvince);
         
-        // se ha il campo falso
-        
-        // se esiste più di una riga, lancia errore
-        // dicendo che non si  può determinare se si deve popolare il DB o no 
-        
-        // carica citta e province in DB     
     }
     
     
