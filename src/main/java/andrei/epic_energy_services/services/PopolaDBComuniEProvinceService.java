@@ -244,6 +244,7 @@ public class PopolaDBComuniEProvinceService extends PopolaDBService {
                     boolean provinciaPesaroEUrbino = nomeProvinciaAggiustato.equals("Pesaro e Urbino");
                     boolean provinciaAscoliPiceno = nomeProvinciaAggiustato.equals("Ascoli Piceno");
                     boolean provinciaReggioCalabria = nomeProvinciaAggiustato.equals("Reggio Calabria");
+                    boolean provinciaViboValentia = nomeProvinciaAggiustato.equals("Vibo Valentia");
                     
                     //  i controlli più specifici sulla non esistenza/non match 
                     //  di una provincia, vanno messi prima di potenzialmente
@@ -495,6 +496,32 @@ public class PopolaDBComuniEProvinceService extends PopolaDBService {
                         Provincia provinciaReggioCalabriaConTrattinoFromDB = forseProvinciaReggioCalabriaConTrattino.get();
 
                         Comune nuovoComune = new Comune(provinciaReggioCalabriaConTrattinoFromDB, nomeComuneAggiustato);
+                        // salva il comune
+                        this.comuniRepository.save(nuovoComune);
+
+                    }
+
+
+                    // *******************************************
+                    // EDGE CASE: Vibo Valentia (provincia dal comune) -> Vibo-Valentia (provincia reale)
+                    // *******************************************
+
+                    else if (forseProvincia.isEmpty() && provinciaViboValentia) {
+
+                        //  trova la provincia di Vibo-Valentia
+                        Optional<Provincia> forseProvinciaViboValentiaConTrattino = this.provinceRepository.trovaProvinciaPerNomeEsatto("Vibo-Valentia");
+
+                        // nemmeno la provincia di Vibo-Valentia esiste
+                        // questo dovrebbe essere raro
+                        if(forseProvinciaViboValentiaConTrattino.isEmpty()) {
+                            throw new PopolaDBException("Durante il caricamento del comune '"
+                                    + nomeComune + "', la cui provincia (nel csv) "
+                                    + "è '" + nomeProvinciaAggiustato + "', nemmeno la provincia 'Vibo-Valentia' è stata trovata.");
+                        }
+
+                        Provincia provinciaViboValentiaConTrattinoFromDB = forseProvinciaViboValentiaConTrattino.get();
+
+                        Comune nuovoComune = new Comune(provinciaViboValentiaConTrattinoFromDB, nomeComuneAggiustato);
                         // salva il comune
                         this.comuniRepository.save(nuovoComune);
 
