@@ -5,19 +5,24 @@ import andrei.epic_energy_services.exceptions.PopolaDBException;
 import andrei.epic_energy_services.repositories.ComuniRepository;
 import andrei.epic_energy_services.repositories.PopolaDBRepository;
 import andrei.epic_energy_services.repositories.ProvinceRepository;
+import com.opencsv.CSVParser;
+import com.opencsv.CSVParserBuilder;
+import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
+import com.opencsv.exceptions.CsvValidationException;
 import jakarta.validation.constraints.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.logging.Logger;
 
 @Service
@@ -55,8 +60,10 @@ public class PopolaDBComuniEProvinceService extends PopolaDBService {
         }
         
         
-        // verifica innanzitutto che le file path siano valide
+        // verifica la file path di province
         Path pathProvince = this.richiediFilePathValida(pathCsvProvince, "province");
+        // verifica la file path di comuni
+        
         
         LOGGER.info("STARTUP TASK: POPOLA DB: comuni e province: devo popolare DB: inizio operazione di caricamento dati in DB");
         
@@ -123,12 +130,45 @@ public class PopolaDBComuniEProvinceService extends PopolaDBService {
 
     /**
      * Qui viene caricato il file delle province.
+        // edge case: la sigla di Roma è "Roma", ma dovrebbe essere RM
      */
-    private void popolaDBProvince(Path pathProvince) 
-    {
+    private void popolaDBProvince(Path pathProvince) throws IOException {
 
-        System.out.println(pathProvince);
-        
+        try (Reader reader = Files.newBufferedReader(pathProvince)) {
+
+            CSVParser parser = new CSVParserBuilder()
+                    .withSeparator(';')
+                    .withIgnoreQuotations(true)
+                    .build();
+
+            try (CSVReader csvReader = new CSVReaderBuilder(reader)
+                    .withCSVParser(parser)
+                    .build()) {
+
+                String[] line;
+
+                // salta l'header
+                csvReader.readNext();
+                
+                while ((line = csvReader.readNext()) != null) {
+
+                    // print entire row
+                    // System.out.println(Arrays.toString(line));
+                    
+                    String sigla = line[0];
+                    String provincia = line[1];
+                    String regione = line[2];
+
+                    System.out.println(sigla + " " + provincia + " " + regione);
+                    
+                    //
+                    // // example
+                    // System.out.println("Sigla: " + col0 + " - Provincia: " + col1);
+                }
+            } catch (CsvValidationException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
 
