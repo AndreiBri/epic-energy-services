@@ -19,7 +19,7 @@ public class PopolaDB implements CommandLineRunner {
         
         // la path dalla directory /resources
         String pathCsvComuni = "popola_db/comuni-italiani.csv";
-        String pathCsvProvince = "popola_db/province-italiane.csv";
+        String pathCsvProvince = "popola_db/province-italianes.csv";
         
         this.popolaDBComuniEProvinceService.popolaDBComuniEProvinceSeDevo(pathCsvComuni, pathCsvProvince);
         

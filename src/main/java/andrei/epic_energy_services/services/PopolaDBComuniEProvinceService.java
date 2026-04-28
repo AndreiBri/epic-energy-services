@@ -5,11 +5,18 @@ import andrei.epic_energy_services.exceptions.PopolaDBException;
 import andrei.epic_energy_services.repositories.ComuniRepository;
 import andrei.epic_energy_services.repositories.PopolaDBRepository;
 import andrei.epic_energy_services.repositories.ProvinceRepository;
+import jakarta.validation.constraints.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -47,6 +54,10 @@ public class PopolaDBComuniEProvinceService extends PopolaDBService {
             return;
         }
         
+        
+        // verifica innanzitutto che le file path siano valide
+        Path pathProvince = this.richiediFilePathValida(pathCsvProvince, "province");
+        
         LOGGER.info("STARTUP TASK: POPOLA DB: comuni e province: devo popolare DB: inizio operazione di caricamento dati in DB");
         
         // prima rimuovi tutti i comuni
@@ -57,9 +68,19 @@ public class PopolaDBComuniEProvinceService extends PopolaDBService {
         LOGGER.info("STARTUP TASK: POPOLA DB: comuni e province: rimosso tutti i comuni e province in DB");
         
         LOGGER.info("STARTUP TASK: POPOLA DB: comuni e province: inizio caricamento dati in DB...");
-        
-        this.popolaDBComuniEProvince(pathCsvComuni, pathCsvProvince);
 
+        LOGGER.info("STARTUP TASK: POPOLA DB: comuni e province: inizio caricamento province in DB...");
+        
+        this.popolaDBProvince(pathProvince);
+
+        LOGGER.info("STARTUP TASK: POPOLA DB: comuni e province: fine caricamento province in DB");
+
+        LOGGER.info("STARTUP TASK: POPOLA DB: comuni e province: inizio caricamento comuni in DB...");
+
+        // this.popolaDBComuni(pathCsvProvince);
+
+        LOGGER.info("STARTUP TASK: POPOLA DB: comuni e province: fine caricamento comuni in DB");
+        
         LOGGER.info("STARTUP TASK: POPOLA DB: comuni e province: fine caricamento dati in DB");
         
         // ho popolato il DB, quindi imposto la voce rilevante       
@@ -68,28 +89,58 @@ public class PopolaDBComuniEProvinceService extends PopolaDBService {
         LOGGER.info("STARTUP TASK: POPOLA DB: comuni e province: operazione completata con successo");
         
     }
-
-    /**
-     * Qui vengono caricati i file con i dati dei comuni
-     * e delle province.
-     */
-    private void popolaDBComuniEProvince(String pathCsvComuni, String pathCsvProvince) 
+    
+    
+    private Path richiediFilePathValida(String filePath, 
+                                        String tipoDato) throws PopolaDBException 
     {
         
-        // se i file non sono validi (non sono csv) 
-        
-        // carica citta e province in DB
-        // usa libreria per leggere il CSV?
+        try {
+            URL url = ClassLoader.getSystemResource(filePath);
 
-        // ClassPathResource resource = new ClassPathResource(pathCsvComuni);
-        //
-        // InputStream inputStream = resource.getInputStream();
-        //
-        // System.out.println(inputStream);
+            Objects.requireNonNull(url);
+            
+            URI uri = url.toURI();
+            
+            Objects.requireNonNull(uri);
+            
+            Path path = Paths.get(uri);
+            
+            Objects.requireNonNull(path);
+            
+            return path;
+                    
+        } catch(URISyntaxException | NullPointerException ex) {
+            LOGGER.severe("STARTUP TASK: POPOLA DB: comuni e province: file path non valida. "
+                                +"Input file path: '" + filePath + "' per dato '" + tipoDato+ "'. DETTAGLI: " + ex.getMessage());
+            
+            throw new PopolaDBException("File path per dato '" + tipoDato + "' non è valida. "
+                                        +"Input file path: '" + filePath +"'. DETTAGLI: " +ex.getMessage());
+        } 
         
-    }
+    } 
     
 
+    /**
+     * Qui viene caricato il file delle province.
+     */
+    private void popolaDBProvince(Path pathProvince) 
+    {
+
+        System.out.println(pathProvince);
+        
+    }
+
+
+    /**
+     * Qui viene caricato il file dei communi.
+     */
+    private void popolaDBComuni(String pathCsvProvince)
+    {
+
+        
+
+    }
 
     /**
      * Devo caricare comuni e province?
