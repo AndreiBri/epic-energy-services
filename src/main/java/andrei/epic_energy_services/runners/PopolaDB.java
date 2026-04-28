@@ -1,12 +1,9 @@
 package andrei.epic_energy_services.runners;
 
-import andrei.epic_energy_services.entities.VocePopolaDB;
-import andrei.epic_energy_services.services.PopolaDBService;
+import andrei.epic_energy_services.services.PopolaDBComuniEProvinceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
-
-import java.util.Optional;
 
 /**
  * Popola il DB con comuni e province.
@@ -15,7 +12,7 @@ import java.util.Optional;
 public class PopolaDB implements CommandLineRunner {
     
     @Autowired
-    private PopolaDBService popolaDBService;
+    private PopolaDBComuniEProvinceService popolaDBComuniEProvinceService;
     
     @Override
     public void run(String... args) throws Exception {
@@ -24,7 +21,7 @@ public class PopolaDB implements CommandLineRunner {
         String pathCsvComuni = "popola_db/comuni-italiani.csv";
         String pathCsvProvince = "popola_db/province-italiane.csv";
         
-        this.popolaDBService.popolaDBComuniEProvinceSeDevo(pathCsvComuni, pathCsvProvince);
+        this.popolaDBComuniEProvinceService.popolaDBComuniEProvinceSeDevo(pathCsvComuni, pathCsvProvince);
         
         
     }
