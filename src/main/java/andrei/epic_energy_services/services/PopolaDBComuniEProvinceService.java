@@ -238,6 +238,7 @@ public class PopolaDBComuniEProvinceService extends PopolaDBService {
                     boolean provinciaEValleDaostaValleDaoste = nomeProvinciaAggiustato.equals("Valle d'Aosta/Vallée d'Aoste");
                     boolean provinciaMonzaEDellaBrianza = nomeProvinciaAggiustato.equals("Monza e della Brianza");
                     boolean provinciaBolzanoBozen = nomeProvinciaAggiustato.equals("Bolzano/Bozen");
+                    boolean provinciaLaSpeziaConSpazio = nomeProvinciaAggiustato.equals("La Spezia");
                     
                     //  i controlli più specifici sulla non esistenza/non match 
                     //  di una provincia, vanno messi prima di potenzialmente
@@ -337,7 +338,33 @@ public class PopolaDBComuniEProvinceService extends PopolaDBService {
                         this.comuniRepository.save(nuovoComune);
 
                     }
-                    
+
+                    // *******************************************
+                    // EDGE CASE: La Spezia (provincia dal comune) -> La-Spezia (provincia reale)
+                    // *******************************************
+
+                    else if (forseProvincia.isEmpty() && provinciaLaSpeziaConSpazio) {
+
+                        //  trova la provincia di La-Spezia
+                        Optional<Provincia> forseProvinciaLaSpeziaConTrattino = this.provinceRepository.trovaProvinciaPerNomeEsatto("La-Spezia");
+
+                        // nemmeno la provincia di La-Spezia esiste
+                        // questo dovrebbe essere raro
+                        if(forseProvinciaLaSpeziaConTrattino.isEmpty()) {
+                            throw new PopolaDBException("Durante il caricamento del comune '"
+                                    + nomeComune + "', la cui provincia (nel csv) "
+                                    + "è '" + nomeProvinciaAggiustato + "', nemmeno la provincia 'La-Spezia' è stata trovata.");
+                        }
+
+                        Provincia provinciaLaSpeziaConTrattinoFromDB = forseProvinciaLaSpeziaConTrattino.get();
+
+                        Comune nuovoComune = new Comune(provinciaLaSpeziaConTrattinoFromDB, nomeComuneAggiustato);
+                        // salva il comune
+                        this.comuniRepository.save(nuovoComune);
+
+                    }
+
+
                     // provincia non esiste in DB: edge case non gestito
                     else if(forseProvincia.isEmpty()) {
                         throw new PopolaDBException("Durante il caricamento del comune '" + nomeComune + "' da csv, "
