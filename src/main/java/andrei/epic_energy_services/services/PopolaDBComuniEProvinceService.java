@@ -245,6 +245,7 @@ public class PopolaDBComuniEProvinceService extends PopolaDBService {
                     boolean provinciaAscoliPiceno = nomeProvinciaAggiustato.equals("Ascoli Piceno");
                     boolean provinciaReggioCalabria = nomeProvinciaAggiustato.equals("Reggio Calabria");
                     boolean provinciaViboValentia = nomeProvinciaAggiustato.equals("Vibo Valentia");
+                    boolean provinciaESudSardegna = nomeProvinciaAggiustato.equals("Sud Sardegna");
                     
                     //  i controlli più specifici sulla non esistenza/non match 
                     //  di una provincia, vanno messi prima di potenzialmente
@@ -522,6 +523,32 @@ public class PopolaDBComuniEProvinceService extends PopolaDBService {
                         Provincia provinciaViboValentiaConTrattinoFromDB = forseProvinciaViboValentiaConTrattino.get();
 
                         Comune nuovoComune = new Comune(provinciaViboValentiaConTrattinoFromDB, nomeComuneAggiustato);
+                        // salva il comune
+                        this.comuniRepository.save(nuovoComune);
+
+                    }
+
+
+                    // *******************************************
+                    // EDGE CASE: Sud Sardegna (provincia dal comune) -> Carbonia Iglesias (provincia reale)
+                    // *******************************************
+
+                    else if (forseProvincia.isEmpty() && provinciaESudSardegna) {
+
+                        //  trova la provincia di Carbonia Iglesias
+                        Optional<Provincia> forseProvinciaCarboniaIglesias = this.provinceRepository.trovaProvinciaPerNomeEsatto("Carbonia Iglesias");
+
+                        // nemmeno la provincia di Carbonia Iglesias esiste
+                        // questo dovrebbe essere raro
+                        if(forseProvinciaCarboniaIglesias.isEmpty()) {
+                            throw new PopolaDBException("Durante il caricamento del comune '"
+                                    + nomeComune + "', la cui provincia (nel csv) "
+                                    + "è '" + nomeProvinciaAggiustato + "', nemmeno la provincia 'Carbonia Iglesias' è stata trovata.");
+                        }
+
+                        Provincia provinciaCarboniaIglesiasFromDB = forseProvinciaCarboniaIglesias.get();
+
+                        Comune nuovoComune = new Comune(provinciaCarboniaIglesiasFromDB, nomeComuneAggiustato);
                         // salva il comune
                         this.comuniRepository.save(nuovoComune);
 
