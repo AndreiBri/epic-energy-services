@@ -1,5 +1,6 @@
 package andrei.epic_energy_services.services;
 
+import andrei.epic_energy_services.entities.Provincia;
 import andrei.epic_energy_services.entities.VocePopolaDB;
 import andrei.epic_energy_services.exceptions.PopolaDBException;
 import andrei.epic_energy_services.repositories.ComuniRepository;
@@ -69,10 +70,13 @@ public class PopolaDBComuniEProvinceService extends PopolaDBService {
         
         // prima rimuovi tutti i comuni
         this.comuniRepository.deleteAll();
+
+        LOGGER.info("STARTUP TASK: POPOLA DB: comuni e province: rimosso tutti i comuni in DB");
+        
         // poi rimuovi tutte le province
         this.provinceRepository.deleteAll();
 
-        LOGGER.info("STARTUP TASK: POPOLA DB: comuni e province: rimosso tutti i comuni e province in DB");
+        LOGGER.info("STARTUP TASK: POPOLA DB: comuni e province: rimosso tutte le province in DB");
         
         LOGGER.info("STARTUP TASK: POPOLA DB: comuni e province: inizio caricamento dati in DB...");
 
@@ -130,9 +134,8 @@ public class PopolaDBComuniEProvinceService extends PopolaDBService {
 
     /**
      * Qui viene caricato il file delle province.
-        // edge case: la sigla di Roma è "Roma", ma dovrebbe essere RM
      */
-    private void popolaDBProvince(Path pathProvince) throws IOException {
+    private void popolaDBProvince(Path pathProvince) throws PopolaDBException, IOException {
 
         try (Reader reader = Files.newBufferedReader(pathProvince)) {
 
@@ -150,23 +153,41 @@ public class PopolaDBComuniEProvinceService extends PopolaDBService {
                 // salta l'header
                 csvReader.readNext();
                 
+                // leggi ogni riga fino alla fine del csv
                 while ((line = csvReader.readNext()) != null) {
-
-                    // print entire row
-                    // System.out.println(Arrays.toString(line));
                     
                     String sigla = line[0];
-                    String provincia = line[1];
+                    String nome = line[1];
                     String regione = line[2];
-
-                    System.out.println(sigla + " " + provincia + " " + regione);
                     
-                    //
-                    // // example
-                    // System.out.println("Sigla: " + col0 + " - Provincia: " + col1);
+                    String siglaAggiustata = sigla.trim();
+                    String nomeAggiustato = nome.trim();
+                    String regioneAggiustata = regione.trim();
+
+                    // System.out.println(sigla + " " + provincia + " " + regione);
+                    
+                    // ***********************+
+                    // EDGE CASES
+                    // ***********************+
+
+                    
+                    // edge case: la sigla di Roma è "Roma", ma dovrebbe essere RM
+                    if(sigla.trim().equals("Roma")) {
+                       siglaAggiustata = "RM"; 
+                    } 
+                    
+                    Provincia nuovaProvincia = new Provincia(
+                            siglaAggiustata,
+                            nomeAggiustato,
+                            regioneAggiustata
+                    );
+                    
+                    // salva la provincia
+                    this.provinceRepository.save(nuovaProvincia);
+                    
                 }
             } catch (CsvValidationException e) {
-                throw new RuntimeException(e);
+                throw new PopolaDBException(e.getMessage());
             }
         }
     }
