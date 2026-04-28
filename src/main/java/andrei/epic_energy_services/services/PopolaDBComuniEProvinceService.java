@@ -240,6 +240,7 @@ public class PopolaDBComuniEProvinceService extends PopolaDBService {
                     boolean provinciaBolzanoBozen = nomeProvinciaAggiustato.equals("Bolzano/Bozen");
                     boolean provinciaLaSpeziaConSpazio = nomeProvinciaAggiustato.equals("La Spezia");
                     boolean provinciaReggioNellEmilia = nomeProvinciaAggiustato.equals("Reggio nell'Emilia");
+                    boolean provinciaForliCesenaConIAccentata = nomeProvinciaAggiustato.equals("Forlì-Cesena");
                     
                     //  i controlli più specifici sulla non esistenza/non match 
                     //  di una provincia, vanno messi prima di potenzialmente
@@ -390,6 +391,33 @@ public class PopolaDBComuniEProvinceService extends PopolaDBService {
                         this.comuniRepository.save(nuovoComune);
 
                     }
+
+
+                    // *******************************************
+                    // EDGE CASE: Forlì-Cesena (provincia dal comune) -> Forli-Cesena (provincia reale)
+                    // *******************************************
+
+                    else if (forseProvincia.isEmpty() && provinciaForliCesenaConIAccentata) {
+
+                        //  trova la provincia di Forli-Cesena
+                        Optional<Provincia> forseProvinciaForliCesena = this.provinceRepository.trovaProvinciaPerNomeEsatto("Forli-Cesena");
+
+                        // nemmeno la provincia di Forli-Cesena esiste
+                        // questo dovrebbe essere raro
+                        if(forseProvinciaForliCesena.isEmpty()) {
+                            throw new PopolaDBException("Durante il caricamento del comune '"
+                                    + nomeComune + "', la cui provincia (nel csv) "
+                                    + "è '" + nomeProvinciaAggiustato + "', nemmeno la provincia 'Forli-Cesena' è stata trovata.");
+                        }
+
+                        Provincia provinciaForliCesenaFromDB = forseProvinciaForliCesena.get();
+
+                        Comune nuovoComune = new Comune(provinciaForliCesenaFromDB, nomeComuneAggiustato);
+                        // salva il comune
+                        this.comuniRepository.save(nuovoComune);
+
+                    }
+
 
 
                     // provincia non esiste in DB: edge case non gestito
