@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public interface RuoliCustomRepository extends JpaRepository<RuoloCustom, UUID> {
 
-    Optional<RuoloCustom> findByNome(String nome);
+    Optional<RuoloCustom> findByRuoloCustom(String ruoloCustom);
 
-    boolean existsByNome(String nome);
+    boolean existsByRuoloCustom(String ruoloCustom);
 }

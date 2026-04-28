@@ -25,17 +25,17 @@ public class RuoliCustomService {
     }
 
     public RuoloCustom findByNome(String nome) {
-        return ruoloCustomRepository.findByNome(nome).orElseThrow(() -> new RuntimeException("Ruolo non trovato"));
+        return ruoloCustomRepository.findByRuoloCustom(nome).orElseThrow(() -> new RuntimeException("Ruolo non trovato"));
     }
 
     public RuoloCustom create(RuoloCustom ruolo) {
 
-        if (ruoloCustomRepository.existsByNome(ruolo.getRuoloCustom())) {
+        if (ruoloCustomRepository.existsByRuoloCustom(ruolo.getRuoloCustom())) {
             throw new RuntimeException("Ruolo già esistente");
         }
 
         return ruoloCustomRepository.save(ruolo);
     }
 
-    
+
 }
