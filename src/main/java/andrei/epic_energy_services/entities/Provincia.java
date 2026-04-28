@@ -25,7 +25,7 @@ public class Provincia {
     
     protected Provincia() {}
     
-    public Provincia(String siglaProvincia, String nomeProvincia, String regione) {
+    public Provincia(String siglaProvincia, String nomeProvincia, String regione) throws InvalidDataFormatException {
         // se la sigla della provincia ha un numero di caratteri diverso da 2
         if (siglaProvincia.length() != 2) {
             throw new InvalidDataFormatException("La sigla di una provincia deve avere esattamente 2 caratteri. "
