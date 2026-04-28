@@ -242,6 +242,7 @@ public class PopolaDBComuniEProvinceService extends PopolaDBService {
                     boolean provinciaReggioNellEmilia = nomeProvinciaAggiustato.equals("Reggio nell'Emilia");
                     boolean provinciaForliCesenaConIAccentata = nomeProvinciaAggiustato.equals("Forlì-Cesena");
                     boolean provinciaPesaroEUrbino = nomeProvinciaAggiustato.equals("Pesaro e Urbino");
+                    boolean provinciaAscoliPiceno = nomeProvinciaAggiustato.equals("Ascoli Piceno");
                     
                     //  i controlli più specifici sulla non esistenza/non match 
                     //  di una provincia, vanno messi prima di potenzialmente
@@ -444,6 +445,33 @@ public class PopolaDBComuniEProvinceService extends PopolaDBService {
                         this.comuniRepository.save(nuovoComune);
 
                     }
+
+
+                    // *******************************************
+                    // EDGE CASE: Ascoli Piceno (provincia dal comune) -> Ascoli-Piceno (provincia reale)
+                    // *******************************************
+
+                    else if (forseProvincia.isEmpty() && provinciaAscoliPiceno) {
+
+                        //  trova la provincia di Ascoli-Piceno
+                        Optional<Provincia> forseProvinciaAscoliPicenoConTrattino = this.provinceRepository.trovaProvinciaPerNomeEsatto("Ascoli-Piceno");
+
+                        // nemmeno la provincia di Ascoli-Piceno esiste
+                        // questo dovrebbe essere raro
+                        if(forseProvinciaAscoliPicenoConTrattino.isEmpty()) {
+                            throw new PopolaDBException("Durante il caricamento del comune '"
+                                    + nomeComune + "', la cui provincia (nel csv) "
+                                    + "è '" + nomeProvinciaAggiustato + "', nemmeno la provincia 'Ascoli-Piceno' è stata trovata.");
+                        }
+
+                        Provincia provinciaAscoliPicenoConTrattinoFromDB = forseProvinciaAscoliPicenoConTrattino.get();
+
+                        Comune nuovoComune = new Comune(provinciaAscoliPicenoConTrattinoFromDB, nomeComuneAggiustato);
+                        // salva il comune
+                        this.comuniRepository.save(nuovoComune);
+
+                    }
+
 
                     // provincia non esiste in DB: edge case non gestito
                     else if(forseProvincia.isEmpty()) {
