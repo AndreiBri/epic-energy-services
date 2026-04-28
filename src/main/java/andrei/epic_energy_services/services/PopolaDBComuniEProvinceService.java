@@ -237,6 +237,7 @@ public class PopolaDBComuniEProvinceService extends PopolaDBService {
                     boolean provinciaEVerbanoCusioOssola = nomeProvinciaAggiustato.equals("Verbano-Cusio-Ossola");
                     boolean provinciaEValleDaostaValleDaoste = nomeProvinciaAggiustato.equals("Valle d'Aosta/Vallée d'Aoste");
                     boolean provinciaMonzaEDellaBrianza = nomeProvinciaAggiustato.equals("Monza e della Brianza");
+                    boolean provinciaBolzanoBozen = nomeProvinciaAggiustato.equals("Bolzano/Bozen");
                     
                     //  i controlli più specifici sulla non esistenza/non match 
                     //  di una provincia, vanno messi prima di potenzialmente
@@ -310,6 +311,31 @@ public class PopolaDBComuniEProvinceService extends PopolaDBService {
                         // salva il comune
                         this.comuniRepository.save(nuovoComune);
                         
+                    }
+
+                    // *******************************************
+                    // EDGE CASE: Bolzano/Bozen (provincia dal comune) -> Bolzano (provincia reale)
+                    // *******************************************
+
+                    else if (forseProvincia.isEmpty() && provinciaBolzanoBozen) {
+
+                        //  trova la provincia di Bolzano
+                        Optional<Provincia> forseProvinciaBolzano = this.provinceRepository.trovaProvinciaPerNomeEsatto("Bolzano");
+
+                        // nemmeno la provincia di Bolzano esiste
+                        // questo dovrebbe essere raro
+                        if(forseProvinciaBolzano.isEmpty()) {
+                            throw new PopolaDBException("Durante il caricamento del comune '"
+                                    + nomeComune + "', la cui provincia (nel csv) "
+                                    + "è '" + nomeProvinciaAggiustato + "', nemmeno la provincia 'Bolzano' è stata trovata.");
+                        }
+
+                        Provincia provinciaBolzanoFromDB = forseProvinciaBolzano.get();
+
+                        Comune nuovoComune = new Comune(provinciaBolzanoFromDB, nomeComuneAggiustato);
+                        // salva il comune
+                        this.comuniRepository.save(nuovoComune);
+
                     }
                     
                     // provincia non esiste in DB: edge case non gestito
