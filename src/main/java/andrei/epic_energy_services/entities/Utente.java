@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -45,10 +44,7 @@ public class Utente {
     @Column(nullable = false)
     private RuoloUtente ruolo;
 
-    
-    private Set<RuoloCustom> ruoliCustom;
-
-    public Utente(String username, String email, String password, String nome, String cognome, String avatarUrl, RuoloUtente ruolo, Set<RuoloCustom> ruoliCustom) {
+    public Utente(String username, String email, String password, String nome, String cognome, String avatarUrl, RuoloUtente ruolo) {
         this.username = username;
         this.email = email;
         this.password = password;
@@ -56,6 +52,5 @@ public class Utente {
         this.cognome = cognome;
         this.avatarUrl = avatarUrl;
         this.ruolo = ruolo;
-        this.ruoliCustom = ruoliCustom;
     }
 }
