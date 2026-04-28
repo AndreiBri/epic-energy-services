@@ -1,12 +1,10 @@
-package andrei.epic_energy_services.payloads.in_response;
+package andrei.epic_energy_services.payloads.in_request;
 
 import andrei.epic_energy_services.enums.FormaGiuridica;
-
 import java.math.BigDecimal;
-import java.util.UUID;
 
-public record ClienteDaMandareDTO(
-        UUID idCliente,
+// DTO per l'aggiornamento parziale del cliente - tutti i campi sono opzionali
+public record AggiornaClienteDTO(
         String ragioneSociale,
         String partitaIva,
         String email,
@@ -17,7 +15,5 @@ public record ClienteDaMandareDTO(
         String cognomeContatto,
         String telefonoContatto,
         BigDecimal fatturatoAnnuale,
-        String logoAziendaleUrl,
         FormaGiuridica formaGiuridica
-) {
-}
+) {}
