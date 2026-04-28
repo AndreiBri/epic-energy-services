@@ -1,10 +1,14 @@
+
+
 # Endpoint
+
 
 ## /auth
 
+
 ### POST /login
 
-Request
+Request 
 
 ```
 {
@@ -43,7 +47,9 @@ Response
 }
 ```
 
+
 ## /clienti
+
 
 ### GET /
 
@@ -70,84 +76,40 @@ un cliente (vedere tabella o DTO relativo)
 }
 ```
 
+
 ### POST /
 
 Request
 
 ```
 {
-    "ragioneSociale": "Azienda Test SRL",
-    "partitaIva": "12345678801",
-    "email": "test1@azienda.it",
-    "pec": "test1@pec.it",
-    "telefono": "0212345858",
-    "emailContatto": "luca@azienda.it",
-    "nomeContatto": "Luca",
-    "cognomeContatto": "Verdi",
-    "telefonoContatto": "3331234567",
-    "fatturatoAnnuale": 50000,
-    "formaGiuridica": "PA"
+    ragioneSociale: str
+    partitaIva: str
+    email: str
+    pec: str
+    telefono: str
+    emailContatto: str
+    nomeContatto: str
+    cognomeContatto: str
+    telefonoContatto: str
+    fatturatoAnnuale: number
 }
 ```
 
 Response
 
 ```
+tutto quello in request più
 {
-      UUID idCliente,
-        String ragioneSociale,
-        String partitaIva,
-        String email,
-        String pec,
-        String telefono,
-        String emailContatto,
-        String nomeContatto,
-        String cognomeContatto,
-        String telefonoContatto,
-        BigDecimal fatturatoAnnuale,
-        String logoAziendaleUrl,
-        FormaGiuridica formaGiuridica
+    idClient: str
+    logoAziendaleUrl: str
 }
 ```
 
-### PATCH (Solo ADMIN) /:clienteId
-
-Se si cambia logo URL e : /:clienteId/logo
-Request
-
-Body bisgona mettere form-data per cambiare logo
-key : logo
-value: file
-
-```
-{
-   Mettere il dato o i dati che che si vogliono cambiare 
-}
-```
-
-Response
-
-```
-{
-    "idCliente": "uuid...",
-    "ragioneSociale": ".....",
-    "partitaIva": "....",
-    "email": "...",
-    "pec": "...",
-    "telefono": ".....",
-    "emailContatto": "...",
-    "nomeContatto": "...",
-    "cognomeContatto": "...",
-    "telefonoContatto": "...",
-    "fatturatoAnnuale": ...,
-    "logoAziendaleUrl": "....",
-    "formaGiuridica": "..."
-}
-```
 
 ### DELETE /:clienteId
 
-Request
+Request 
 
 ```
 <no body>
@@ -159,7 +121,9 @@ Response
 <no body>
 ```
 
+
 ## /fatture
+
 
 ### GET /clienti/:clienteId
 
@@ -174,6 +138,7 @@ Response
 ```
 vedi sotto, ricorda che è una lista
 ```
+
 
 ### POST /clienti/:clienteId
 
@@ -195,6 +160,7 @@ tutto quello in request più
     dataCreazione: str
 }
 ```
+
 
 ### PATCH /:fatturaId
 
@@ -226,9 +192,14 @@ Response
 <no body>
 ```
 
+
 ## /ruoli-custom
 
+
+
+
 ### POST /  (aggiungi un ruolo custom)
+
 
 Request
 
@@ -247,11 +218,13 @@ stesso di richiesta più
 }
 ```
 
+
 ### POST /:ruoloCustomId/utenti/:utenteId  (aggiungi un'associazione tra un ruolo custom e un utente)
 
 Esempio di richiesta:
 
 `/ruoli-custom/sdasd-34234-324sds-343243/utenti/sakdjkda-asdasdasd-asdasd-asdas`
+
 
 Request
 
@@ -265,7 +238,10 @@ Response
 <no body>
 ```
 
+
+
 ### GET /utenti/:utenteId (ottieni i ruoli custom di un utente)
+
 
 Request
 
@@ -279,7 +255,9 @@ Response
 lista di ruoli custom
 ```
 
-## /sedi
+
+
+## /sedi 
 
 ### POST /clienti/:clienteId/comuni/:comuneId
 
@@ -298,13 +276,23 @@ Response
 vedi sopra
 ```
 
+
+
+
+
+
+
+
+
+
+
 # PERMESSI
 
-FEATURE | USER | ADMIN
+FEATURE             |              USER                   |                ADMIN
 —--------------------------------------------------------------------------------------
-lettura SI SI
-inserire clienti SI SI
-tutto il resto NO SI
+lettura                                         SI				SI
+inserire clienti                             SI                                  SI
+tutto il resto                                NO                                 SI
 
-tutto il resto = aggiungi sede, aggiungi ruoli custom, aggiungi fatture (aggiungi nel senso di modifica/ aggiunta/
-rimozione)
+
+tutto il resto = aggiungi sede, aggiungi ruoli custom, aggiungi fatture (aggiungi nel senso di modifica/ aggiunta/ rimozione)
