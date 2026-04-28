@@ -56,6 +56,9 @@ public class PopolaDBService {
     
     private void popolaDBComuniEProvince(String pathCsvComuni, String pathCsvProvince) 
     {
+        // crea le tabelle in DB (comuni e province)
+        
+        
         // carica citta e province in DB
         // usa libreria per leggere il CSV?
 
