@@ -10,12 +10,16 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 @Service
 public class PopolaDBService {
     
     @Autowired
     private PopolaDBRepository popolaDBRepository;
+
+    @Autowired
+    private static final Logger LOGGER = Logger.getLogger(PopolaDBService.class.getName());
 
 
     /**
@@ -25,21 +29,27 @@ public class PopolaDBService {
      */
     public void popolaDBComuniEProvinceSeDevo(String pathCsvComuni, String pathCsvProvince) throws PopolaDBException, IOException 
     {
+            
+        LOGGER.info("STARTUP TASK: POPOLA DB: comuni e province: sto verificando se devo popolare DB");
+        
         boolean devoPopolareDB = this.devoPopolareDBComuniEProvince();
 
         // se non devo popolare il DB, mi fermo
         if(!devoPopolareDB) {
-            System.out.println("DEVO POPOLARE DB: NO");
+            LOGGER.info("STARTUP TASK: POPOLA DB: comuni e province: non devo popolare DB");
             return;
         }
-        System.out.println("DEVO POPOLARE DB: SI");
         
+        LOGGER.info("STARTUP TASK: POPOLA DB: comuni e province: devo popolare DB: inizio caricamento dati in DB...");
         
         this.popolaDBComuniEProvince(pathCsvComuni, pathCsvProvince);
+
+        LOGGER.info("STARTUP TASK: POPOLA DB: comuni e province: devo popolare DB: fine caricamento dati in DB");
         
         // ho popolato il DB, quindi imposto la voce rilevante       
         this.impostaVocePopolaDBComuniEProvinceComeCaricato();
         
+        LOGGER.info("STARTUP TASK: POPOLA DB: comuni e province: devo popolare DB: operazione completata con successo");
         
     }
     
