@@ -2,7 +2,9 @@ package andrei.epic_energy_services.services;
 
 import andrei.epic_energy_services.entities.VocePopolaDB;
 import andrei.epic_energy_services.exceptions.PopolaDBException;
+import andrei.epic_energy_services.repositories.ComuniRepository;
 import andrei.epic_energy_services.repositories.PopolaDBRepository;
+import andrei.epic_energy_services.repositories.ProvinceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +18,12 @@ public class PopolaDBComuniEProvinceService extends PopolaDBService {
     
     @Autowired
     private PopolaDBRepository popolaDBRepository;
+    
+    @Autowired
+    private ProvinceRepository provinceRepository;
+    
+    @Autowired
+    private ComuniRepository comuniRepository;
 
     @Autowired
     private static final Logger LOGGER = Logger.getLogger(PopolaDBComuniEProvinceService.class.getName());
@@ -29,7 +37,7 @@ public class PopolaDBComuniEProvinceService extends PopolaDBService {
     public void popolaDBComuniEProvinceSeDevo(String pathCsvComuni, String pathCsvProvince) throws PopolaDBException, IOException 
     {
             
-        LOGGER.info("STARTUP TASK: POPOLA DB: comuni e province: sto verificando se devo popolare DB");
+        LOGGER.info("STARTUP TASK: POPOLA DB: comuni e province: sto verificando se devo popolare DB...");
         
         boolean devoPopolareDB = this.devoPopolareDBComuniEProvince();
 
@@ -39,16 +47,25 @@ public class PopolaDBComuniEProvinceService extends PopolaDBService {
             return;
         }
         
-        LOGGER.info("STARTUP TASK: POPOLA DB: comuni e province: devo popolare DB: inizio caricamento dati in DB...");
+        LOGGER.info("STARTUP TASK: POPOLA DB: comuni e province: devo popolare DB: inizio operazione di caricamento dati in DB");
+        
+        // prima rimuovi tutti i comuni
+        this.comuniRepository.deleteAll();
+        // poi rimuovi tutte le province
+        this.provinceRepository.deleteAll();
+
+        LOGGER.info("STARTUP TASK: POPOLA DB: comuni e province: rimosso tutti i comuni e province in DB");
+        
+        LOGGER.info("STARTUP TASK: POPOLA DB: comuni e province: inizio caricamento dati in DB...");
         
         this.popolaDBComuniEProvince(pathCsvComuni, pathCsvProvince);
 
-        LOGGER.info("STARTUP TASK: POPOLA DB: comuni e province: devo popolare DB: fine caricamento dati in DB");
+        LOGGER.info("STARTUP TASK: POPOLA DB: comuni e province: fine caricamento dati in DB");
         
         // ho popolato il DB, quindi imposto la voce rilevante       
         this.impostaVocePopolaDBComuniEProvinceComeCaricato();
         
-        LOGGER.info("STARTUP TASK: POPOLA DB: comuni e province: devo popolare DB: operazione completata con successo");
+        LOGGER.info("STARTUP TASK: POPOLA DB: comuni e province: operazione completata con successo");
         
     }
 
@@ -59,7 +76,8 @@ public class PopolaDBComuniEProvinceService extends PopolaDBService {
     private void popolaDBComuniEProvince(String pathCsvComuni, String pathCsvProvince) 
     {
         
-                
+        // se i file non sono validi (non sono csv) 
+        
         // carica citta e province in DB
         // usa libreria per leggere il CSV?
 
@@ -70,8 +88,6 @@ public class PopolaDBComuniEProvinceService extends PopolaDBService {
         // System.out.println(inputStream);
         
     }
-    
-    // private 
     
 
 
