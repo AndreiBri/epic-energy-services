@@ -229,15 +229,17 @@ public class PopolaDBComuniEProvinceService extends PopolaDBService {
                     // di questo comune
                     Optional<Provincia> forseProvincia = this.provinceRepository.trovaProvinciaPerNomeEsatto(nomeProvinciaAggiustato);
                     
-                    // ***************
-                    // EDGE CASE
-                    // ***************
+                    // *******************************************
+                    // EDGE CASE: Verbano-Cusio-Ossola (provincia dal comune) -> Verbania (provincia reale)
+                    // *******************************************
+                    
                     // la provincia del comune è "Verbano-Cusio-Ossola"
                     // in questo caso, trova invece la provincia "Verbania", che invece è quella 
                     // che deve essere correttamente associata a tutti i comuni che sono attualmente 
                     // associati con "Verbano-Cusio-Ossola".
                     
                     boolean provinciaEVerbanoCusioOssola = nomeProvinciaAggiustato.equals("Verbano-Cusio-Ossola");
+                    boolean provinciaEValleDaostaValleDaoste = nomeProvinciaAggiustato.equals("Valle d'Aosta/Vallée d'Aoste");
                     
                     //  i controlli più specifici sulla non esistenza/non match 
                     //  di una provincia, vanno messi prima di potenzialmente
@@ -262,6 +264,32 @@ public class PopolaDBComuniEProvinceService extends PopolaDBService {
                         this.comuniRepository.save(nuovoComune);
                         
                     }
+
+                    // *******************************************
+                    // EDGE CASE: Valle d'Aosta/Vallée d'Aoste (provincia dal comune) -> Valle d'Aosta (provincia reale)
+                    // *******************************************
+                    
+                    else if (forseProvincia.isEmpty() && provinciaEValleDaostaValleDaoste) {
+
+                        //  trova la provincia di Verbania
+                        Optional<Provincia> forseProvinciaAosta = this.provinceRepository.trovaProvinciaPerNomeEsatto("Aosta");
+
+                        // nemmeno la provincia di Aosta esiste
+                        // questo dovrebbe essere raro
+                        if(forseProvinciaAosta.isEmpty()) {
+                            throw new PopolaDBException("Durante il caricamento del comune '"
+                                                + nomeComune + "', la cui provincia (nel csv) "
+                                                + "è '" + nomeProvinciaAggiustato + "', nemmeno la provincia 'Aosta' è stata trovata.");
+                        }
+
+                        Provincia provinciaAostaFromDB = forseProvinciaAosta.get();
+
+                        Comune nuovoComune = new Comune(provinciaAostaFromDB, nomeComuneAggiustato);
+                        // salva il comune
+                        this.comuniRepository.save(nuovoComune);
+                        
+                    }
+                    
                     // provincia non esiste in DB: edge case non gestito
                     else if(forseProvincia.isEmpty()) {
                         throw new PopolaDBException("Durante il caricamento del comune '" + nomeComune + "' da csv, "
