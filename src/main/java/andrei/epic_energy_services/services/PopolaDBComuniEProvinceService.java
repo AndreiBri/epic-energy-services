@@ -239,6 +239,7 @@ public class PopolaDBComuniEProvinceService extends PopolaDBService {
                     boolean provinciaMonzaEDellaBrianza = nomeProvinciaAggiustato.equals("Monza e della Brianza");
                     boolean provinciaBolzanoBozen = nomeProvinciaAggiustato.equals("Bolzano/Bozen");
                     boolean provinciaLaSpeziaConSpazio = nomeProvinciaAggiustato.equals("La Spezia");
+                    boolean provinciaReggioNellEmilia = nomeProvinciaAggiustato.equals("Reggio nell'Emilia");
                     
                     //  i controlli più specifici sulla non esistenza/non match 
                     //  di una provincia, vanno messi prima di potenzialmente
@@ -359,6 +360,32 @@ public class PopolaDBComuniEProvinceService extends PopolaDBService {
                         Provincia provinciaLaSpeziaConTrattinoFromDB = forseProvinciaLaSpeziaConTrattino.get();
 
                         Comune nuovoComune = new Comune(provinciaLaSpeziaConTrattinoFromDB, nomeComuneAggiustato);
+                        // salva il comune
+                        this.comuniRepository.save(nuovoComune);
+
+                    }
+
+
+                    // *******************************************
+                    // EDGE CASE: Reggio nell'Emilia (provincia dal comune) -> Reggio-Emilia (provincia reale)
+                    // *******************************************
+
+                    else if (forseProvincia.isEmpty() && provinciaReggioNellEmilia) {
+
+                        //  trova la provincia di Reggio-Emilia
+                        Optional<Provincia> forseProvinciaReggioEmilia = this.provinceRepository.trovaProvinciaPerNomeEsatto("Reggio-Emilia");
+
+                        // nemmeno la provincia di Reggio-Emilia esiste
+                        // questo dovrebbe essere raro
+                        if(forseProvinciaReggioEmilia.isEmpty()) {
+                            throw new PopolaDBException("Durante il caricamento del comune '"
+                                    + nomeComune + "', la cui provincia (nel csv) "
+                                    + "è '" + nomeProvinciaAggiustato + "', nemmeno la provincia 'Reggio-Emilia' è stata trovata.");
+                        }
+
+                        Provincia provinciaReggioEmiliaFromDB = forseProvinciaReggioEmilia.get();
+
+                        Comune nuovoComune = new Comune(provinciaReggioEmiliaFromDB, nomeComuneAggiustato);
                         // salva il comune
                         this.comuniRepository.save(nuovoComune);
 
