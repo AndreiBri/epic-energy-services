@@ -20,7 +20,9 @@ public class Comune {
     @Column(name = "nome_comune", nullable = false)
     private String nomeComune;
     
-    protected Comune(Provincia provincia, String nomeComune) {
+    protected Comune() {}
+    
+    public Comune(Provincia provincia, String nomeComune) {
         this.provincia = provincia;
         this.nomeComune = nomeComune;
     }

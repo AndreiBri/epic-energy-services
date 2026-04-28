@@ -1,5 +1,6 @@
 package andrei.epic_energy_services.services;
 
+import andrei.epic_energy_services.entities.Comune;
 import andrei.epic_energy_services.entities.Provincia;
 import andrei.epic_energy_services.entities.VocePopolaDB;
 import andrei.epic_energy_services.exceptions.PopolaDBException;
@@ -64,6 +65,7 @@ public class PopolaDBComuniEProvinceService extends PopolaDBService {
         // verifica la file path di province
         Path pathProvince = this.richiediFilePathValida(pathCsvProvince, "province");
         // verifica la file path di comuni
+        Path pathComuni = this.richiediFilePathValida(pathCsvComuni, "comuni");
         
         
         LOGGER.info("STARTUP TASK: POPOLA DB: comuni e province: devo popolare DB: inizio operazione di caricamento dati in DB");
@@ -88,7 +90,7 @@ public class PopolaDBComuniEProvinceService extends PopolaDBService {
 
         LOGGER.info("STARTUP TASK: POPOLA DB: comuni e province: inizio caricamento comuni in DB...");
 
-        // this.popolaDBComuni(pathCsvProvince);
+        this.popolaDBComuni(pathComuni);
 
         LOGGER.info("STARTUP TASK: POPOLA DB: comuni e province: fine caricamento comuni in DB");
         
@@ -194,14 +196,99 @@ public class PopolaDBComuniEProvinceService extends PopolaDBService {
 
 
     /**
-     * Qui viene caricato il file dei communi.
+     * Qui viene caricato il file dei comuni.
      */
-    private void popolaDBComuni(String pathCsvProvince)
-    {
+    private void popolaDBComuni(Path pathComuni) throws PopolaDBException, IOException {
 
-        
+        try (Reader reader = Files.newBufferedReader(pathComuni)) {
 
+            CSVParser parser = new CSVParserBuilder()
+                    .withSeparator(';')
+                    .withIgnoreQuotations(true)
+                    .build();
+
+            try (CSVReader csvReader = new CSVReaderBuilder(reader)
+                    .withCSVParser(parser)
+                    .build()) {
+
+                String[] line;
+
+                // salta l'header
+                csvReader.readNext();
+
+                // leggi ogni riga fino alla fine del csv
+                while ((line = csvReader.readNext()) != null) {
+
+                    String nomeComune = line[2];
+                    String nomeProvincia = line[3];
+
+                    String nomeComuneAggiustato = nomeComune.trim();
+                    String nomeProvinciaAggiustato = nomeProvincia.trim();
+
+                    // cerca l'id della provincia che ha il nome provincia
+                    // di questo comune
+                    Optional<Provincia> forseProvincia = this.provinceRepository.trovaProvinciaPerNomeEsatto(nomeProvinciaAggiustato);
+                    
+                    // ***************
+                    // EDGE CASE
+                    // ***************
+                    // la provincia del comune è "Verbano-Cusio-Ossola"
+                    // in questo caso, trova invece la provincia "Verbania", che invece è quella 
+                    // che deve essere correttamente associata a tutti i comuni che sono attualmente 
+                    // associati con "Verbano-Cusio-Ossola".
+                    
+                    boolean provinciaEVerbanoCusioOssola = nomeProvinciaAggiustato.equals("Verbano-Cusio-Ossola");
+                    
+                    //  i controlli più specifici sulla non esistenza/non match 
+                    //  di una provincia, vanno messi prima di potenzialmente
+                    // lanciare l'errore generico sulla provincia
+                    if(forseProvincia.isEmpty() && provinciaEVerbanoCusioOssola) {
+                           
+                        //  trova la provincia di Verbania
+                        Optional<Provincia> forseProvinciaVerbania = this.provinceRepository.trovaProvinciaPerNomeEsatto("Verbania");
+                        
+                        // nemmeno la provincia di Verbania esiste
+                        // questo dovrebbe essere raro
+                        if(forseProvinciaVerbania.isEmpty()) {
+                            throw new PopolaDBException("Durante il caricamento del comune '" 
+                                                        + nomeComune + "', la cui provincia (nel csv) "
+                                                        + "è '" + nomeProvinciaAggiustato + "', nemmeno la provincia 'Verbania' è stata trovata.");
+                        }
+                        
+                        Provincia provinciaVerbaniaFromDB = forseProvinciaVerbania.get();
+
+                        Comune nuovoComune = new Comune(provinciaVerbaniaFromDB, nomeComuneAggiustato);
+                        // salva il comune
+                        this.comuniRepository.save(nuovoComune);
+                        
+                    }
+                    // provincia non esiste in DB: edge case non gestito
+                    else if(forseProvincia.isEmpty()) {
+                        throw new PopolaDBException("Durante il caricamento del comune '" + nomeComune + "' da csv, "
+                                                    +"nella tabella delle province "
+                                                    +" non è stata trovata una provincia il cui nome provincia corrisponde "
+                                                    +"esattamente con '" + nomeProvincia + "'. Possibili motivi: non esiste questa provincia nella "
+                                                    +"tabella delle province, o la provincia di questo comune non "
+                                                    +"corrisponde esattamente a una provincia in DB.");
+                    } 
+                    // nessun errore
+                    else {
+                        // la managed entity dal DB
+                        Provincia provinciaFromDB = forseProvincia.get();
+
+                        Comune nuovoComune = new Comune(provinciaFromDB, nomeComuneAggiustato);
+                        // salva il comune
+                        this.comuniRepository.save(nuovoComune);              
+                    }
+                    
+
+                }
+            } catch (CsvValidationException e) {
+                throw new PopolaDBException(e.getMessage());
+            }
+        }
     }
+
 
     /**
      * Devo caricare comuni e province?
