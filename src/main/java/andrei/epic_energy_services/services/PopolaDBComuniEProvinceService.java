@@ -241,6 +241,7 @@ public class PopolaDBComuniEProvinceService extends PopolaDBService {
                     boolean provinciaLaSpeziaConSpazio = nomeProvinciaAggiustato.equals("La Spezia");
                     boolean provinciaReggioNellEmilia = nomeProvinciaAggiustato.equals("Reggio nell'Emilia");
                     boolean provinciaForliCesenaConIAccentata = nomeProvinciaAggiustato.equals("Forlì-Cesena");
+                    boolean provinciaPesaroEUrbino = nomeProvinciaAggiustato.equals("Pesaro e Urbino");
                     
                     //  i controlli più specifici sulla non esistenza/non match 
                     //  di una provincia, vanno messi prima di potenzialmente
@@ -419,6 +420,30 @@ public class PopolaDBComuniEProvinceService extends PopolaDBService {
                     }
 
 
+                    // *******************************************
+                    // EDGE CASE: Pesaro e Urbino (provincia dal comune) -> Pesaro-Urbino (provincia reale)
+                    // *******************************************
+
+                    else if (forseProvincia.isEmpty() && provinciaPesaroEUrbino) {
+
+                        //  trova la provincia di Pesaro-Urbino
+                        Optional<Provincia> forseProvinciaPesaroUrbinoConTrattino = this.provinceRepository.trovaProvinciaPerNomeEsatto("Pesaro-Urbino");
+
+                        // nemmeno la provincia di Pesaro-Urbino esiste
+                        // questo dovrebbe essere raro
+                        if(forseProvinciaPesaroUrbinoConTrattino.isEmpty()) {
+                            throw new PopolaDBException("Durante il caricamento del comune '"
+                                    + nomeComune + "', la cui provincia (nel csv) "
+                                    + "è '" + nomeProvinciaAggiustato + "', nemmeno la provincia 'Pesaro-Urbino' è stata trovata.");
+                        }
+
+                        Provincia provinciaPesaroUrbinoConTrattinoFromDB = forseProvinciaPesaroUrbinoConTrattino.get();
+
+                        Comune nuovoComune = new Comune(provinciaPesaroUrbinoConTrattinoFromDB, nomeComuneAggiustato);
+                        // salva il comune
+                        this.comuniRepository.save(nuovoComune);
+
+                    }
 
                     // provincia non esiste in DB: edge case non gestito
                     else if(forseProvincia.isEmpty()) {
