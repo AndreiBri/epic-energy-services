@@ -26,6 +26,7 @@ public class PopolaDB implements CommandLineRunner {
         
         this.popolaDBService.popolaDBComuniEProvinceSeDevo(pathCsvComuni, pathCsvProvince);
         
+        
     }
     
     

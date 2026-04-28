@@ -14,10 +14,10 @@ public class VocePopolaDB {
     private boolean caricatoComuniEProvince;
 
     
-    protected VocePopolaDB() {}
+    public VocePopolaDB() {}
     
     
-    public boolean getCaricatoComuniEProvince() {
+    public boolean isCaricatoComuniEProvince() {
         return caricatoComuniEProvince;
     }
 
