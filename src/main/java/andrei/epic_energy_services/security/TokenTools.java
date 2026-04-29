@@ -1,6 +1,8 @@
 package andrei.epic_energy_services.security;
 
 
+import andrei.epic_energy_services.entities.Utente;
+import andrei.epic_energy_services.exceptions.UnauthorizedException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,49 +24,49 @@ public class TokenTools {
     }
     //
     //
-    // public String generateToken(String userId) {
-    //     Date now = new Date(System.currentTimeMillis());
-    //     int _7DaysMillis = 1000 * 60 * 60 * 24 * 7;
-    //     Date futureTime = new Date(System.currentTimeMillis() + _7DaysMillis);
-    //     String subject = userId;
-    //     Key secretKey = Keys.hmacShaKeyFor(secret.getBytes());
-    //     // here we build the JWT
-    //     return Jwts.builder()
-    //             .issuedAt(now)
-    //             .expiration(futureTime)
-    //             .subject(subject)
-    //             .signWith(secretKey)
-    //             .compact();
-    // }
-    //
-    // public String generateToken(User user) {
-    //     return this.generateToken(user.getUserId().toString());
-    // }
-    //
-    // public void verifyToken(String token) {
-    //
-    //     try {
-    //         SecretKey secretKey = Keys.hmacShaKeyFor(secret.getBytes());
-    //         Jwts
-    //                 .parser()
-    //                 .verifyWith(secretKey)
-    //                 .build()
-    //                 .parse(token);
-    //     } catch (Exception ex) {
-    //         throw new UnauthorizedException("Token is invalid. You must login again.");
-    //     }
-    // }
-    //
-    //
-    // public UUID extractIdFromToken(String token) {
-    //     return UUID.fromString(
-    //             Jwts.parser()
-    //                     .verifyWith(Keys.hmacShaKeyFor(this.secret.getBytes()))
-    //                     .build()
-    //                     .parseSignedClaims(token)
-    //                     .getPayload()
-    //                     .getSubject()
-    //     );
-    // }
+    public String generateToken(String userId) {
+        Date now = new Date(System.currentTimeMillis());
+        int _7DaysMillis = 1000 * 60 * 60 * 24 * 7;
+        Date futureTime = new Date(System.currentTimeMillis() + _7DaysMillis);
+        String subject = userId;
+        Key secretKey = Keys.hmacShaKeyFor(secret.getBytes());
+        // here we build the JWT
+        return Jwts.builder()
+                .issuedAt(now)
+                .expiration(futureTime)
+                .subject(subject)
+                .signWith(secretKey)
+                .compact();
+    }
+
+    public String generateToken(Utente utente) {
+        return this.generateToken(utente.getIdUtente().toString());
+    }
+
+    public void verifyToken(String token) {
+
+        try {
+            SecretKey secretKey = Keys.hmacShaKeyFor(secret.getBytes());
+            Jwts
+                    .parser()
+                    .verifyWith(secretKey)
+                    .build()
+                    .parse(token);
+        } catch (Exception ex) {
+            throw new UnauthorizedException("Token is invalid. You must login again.");
+        }
+    }
+
+
+    public UUID extractIdFromToken(String token) {
+        return UUID.fromString(
+                Jwts.parser()
+                        .verifyWith(Keys.hmacShaKeyFor(this.secret.getBytes()))
+                        .build()
+                        .parseSignedClaims(token)
+                        .getPayload()
+                        .getSubject()
+        );
+    }
 
 }

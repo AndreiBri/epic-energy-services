@@ -17,6 +17,18 @@ Request
 }
 ```
 
+Esempio payload in Request
+
+
+```
+{
+    "email": "giuseppetavella8@gmail.com",
+    "password": "123456"
+}
+
+```
+
+
 Response
 
 ```

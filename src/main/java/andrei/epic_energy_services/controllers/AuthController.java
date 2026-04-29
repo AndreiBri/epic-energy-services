@@ -1,7 +1,9 @@
 package andrei.epic_energy_services.controllers;
 
 import andrei.epic_energy_services.exceptions.PayloadValidationException;
+import andrei.epic_energy_services.payloads.in_request.LoginMandatoDTO;
 import andrei.epic_energy_services.payloads.in_request.RegistrazioneMandataDTO;
+import andrei.epic_energy_services.payloads.in_response.LoginDaMandareDTO;
 import andrei.epic_energy_services.payloads.in_response.RegistrazioneDaMandareDTO;
 import andrei.epic_energy_services.services.AuthService;
 import andrei.epic_energy_services.services.UtentiService;
@@ -27,10 +29,10 @@ public class AuthController {
     /**
      * Login a user.
      */
-    // @PostMapping("/login")
-    // public AfterLoginDTO login(@RequestBody @Validated LoginSentDTO body) {
-    //     return authService.login(body);
-    // }
+    @PostMapping("/login")
+    public LoginDaMandareDTO login(@RequestBody @Validated LoginMandatoDTO body) {
+        return this.authService.login(body);
+    }
 
 
     /**
