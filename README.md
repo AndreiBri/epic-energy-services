@@ -278,8 +278,29 @@ vedi sopra
 
 
 
+## /comuni
 
 
+### GET /
+
+Request 
+
+Query params: 
+    nomeComune
+
+
+
+Response 
+
+```
+content: [
+    {
+        idComune: str
+        idProvincia: str
+        nomeComune: str
+    }
+]
+```
 
 
 
