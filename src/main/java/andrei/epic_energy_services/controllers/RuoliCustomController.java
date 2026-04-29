@@ -34,4 +34,6 @@ public class RuoliCustomController {
 
         return ruoloCustomResponseDTO;
     }
+
+    
 }
