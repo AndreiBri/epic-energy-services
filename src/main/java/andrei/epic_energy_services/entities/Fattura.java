@@ -2,30 +2,21 @@ package andrei.epic_energy_services.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.math.BigInteger;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
-@Table(
-        name = "fatture",
-        uniqueConstraints = {
-                @UniqueConstraint(
-                        name = "unique_numero_fattura_per_cliente",
-                        columnNames = {"id_cliente", "numero"}
-                )
-        }
-)
+@Table(name = "fatture")
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Fattura {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue
     @Column(name = "id_fattura")
+    @Setter(AccessLevel.NONE)
     private UUID idFattura;
 
     @ManyToOne
@@ -36,11 +27,15 @@ public class Fattura {
     private LocalDate dataCreazione;
 
     @Column(nullable = false)
-    private Long importo;
+    private BigDecimal importo;
 
     @Column(nullable = false)
     private Integer numero;
 
-    @Column(name = "stato_custom", nullable = false)
-    private String statoCustom;
+    public Fattura(Cliente cliente, LocalDate dataCreazione, BigDecimal importo, Integer numero) {
+        this.cliente = cliente;
+        this.dataCreazione = dataCreazione;
+        this.importo = importo;
+        this.numero = numero;
+    }
 }
