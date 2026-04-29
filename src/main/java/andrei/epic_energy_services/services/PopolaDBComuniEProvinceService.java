@@ -1,5 +1,6 @@
 package andrei.epic_energy_services.services;
 
+import andrei.epic_energy_services.entities.Comune;
 import andrei.epic_energy_services.entities.Provincia;
 import andrei.epic_energy_services.entities.VocePopolaDB;
 import andrei.epic_energy_services.exceptions.PopolaDBException;
@@ -64,6 +65,7 @@ public class PopolaDBComuniEProvinceService extends PopolaDBService {
         // verifica la file path di province
         Path pathProvince = this.richiediFilePathValida(pathCsvProvince, "province");
         // verifica la file path di comuni
+        Path pathComuni = this.richiediFilePathValida(pathCsvComuni, "comuni");
         
         
         LOGGER.info("STARTUP TASK: POPOLA DB: comuni e province: devo popolare DB: inizio operazione di caricamento dati in DB");
@@ -88,7 +90,7 @@ public class PopolaDBComuniEProvinceService extends PopolaDBService {
 
         LOGGER.info("STARTUP TASK: POPOLA DB: comuni e province: inizio caricamento comuni in DB...");
 
-        // this.popolaDBComuni(pathCsvProvince);
+        this.popolaDBComuni(pathComuni);
 
         LOGGER.info("STARTUP TASK: POPOLA DB: comuni e province: fine caricamento comuni in DB");
         
@@ -194,14 +196,392 @@ public class PopolaDBComuniEProvinceService extends PopolaDBService {
 
 
     /**
-     * Qui viene caricato il file dei communi.
+     * Qui viene caricato il file dei comuni.
      */
-    private void popolaDBComuni(String pathCsvProvince)
-    {
+    private void popolaDBComuni(Path pathComuni) throws PopolaDBException, IOException {
 
-        
+        try (Reader reader = Files.newBufferedReader(pathComuni)) {
 
+            CSVParser parser = new CSVParserBuilder()
+                    .withSeparator(';')
+                    .withIgnoreQuotations(true)
+                    .build();
+
+            try (CSVReader csvReader = new CSVReaderBuilder(reader)
+                    .withCSVParser(parser)
+                    .build()) {
+
+                String[] line;
+
+                // salta l'header
+                csvReader.readNext();
+
+                // leggi ogni riga fino alla fine del csv
+                while ((line = csvReader.readNext()) != null) {
+
+                    String nomeComune = line[2];
+                    String nomeProvincia = line[3];
+
+                    String nomeComuneAggiustato = nomeComune.trim();
+                    String nomeProvinciaAggiustato = nomeProvincia.trim();
+
+                    // cerca l'id della provincia che ha il nome provincia
+                    // di questo comune
+                    Optional<Provincia> forseProvincia = this.provinceRepository.trovaProvinciaPerNomeEsatto(nomeProvinciaAggiustato);
+                    
+                    // *******************************************
+                    // EDGE CASE: Verbano-Cusio-Ossola (provincia dal comune) -> Verbania (provincia reale)
+                    // *******************************************
+                    
+                    
+                    boolean provinciaEVerbanoCusioOssola = nomeProvinciaAggiustato.equals("Verbano-Cusio-Ossola");
+                    boolean provinciaEValleDaostaValleDaoste = nomeProvinciaAggiustato.equals("Valle d'Aosta/Vallée d'Aoste");
+                    boolean provinciaMonzaEDellaBrianza = nomeProvinciaAggiustato.equals("Monza e della Brianza");
+                    boolean provinciaBolzanoBozen = nomeProvinciaAggiustato.equals("Bolzano/Bozen");
+                    boolean provinciaLaSpeziaConSpazio = nomeProvinciaAggiustato.equals("La Spezia");
+                    boolean provinciaReggioNellEmilia = nomeProvinciaAggiustato.equals("Reggio nell'Emilia");
+                    boolean provinciaForliCesenaConIAccentata = nomeProvinciaAggiustato.equals("Forlì-Cesena");
+                    boolean provinciaPesaroEUrbino = nomeProvinciaAggiustato.equals("Pesaro e Urbino");
+                    boolean provinciaAscoliPiceno = nomeProvinciaAggiustato.equals("Ascoli Piceno");
+                    boolean provinciaReggioCalabria = nomeProvinciaAggiustato.equals("Reggio Calabria");
+                    boolean provinciaViboValentia = nomeProvinciaAggiustato.equals("Vibo Valentia");
+                    boolean provinciaESudSardegna = nomeProvinciaAggiustato.equals("Sud Sardegna");
+                    
+                    //  i controlli più specifici sulla non esistenza/non match 
+                    //  di una provincia, vanno messi prima di potenzialmente
+                    // lanciare l'errore generico sulla provincia
+                    if(forseProvincia.isEmpty() && provinciaEVerbanoCusioOssola) {
+                           
+                        //  trova la provincia di Verbania
+                        Optional<Provincia> forseProvinciaVerbania = this.provinceRepository.trovaProvinciaPerNomeEsatto("Verbania");
+                        
+                        // nemmeno la provincia di Verbania esiste
+                        // questo dovrebbe essere raro
+                        if(forseProvinciaVerbania.isEmpty()) {
+                            throw new PopolaDBException("Durante il caricamento del comune '" 
+                                                        + nomeComune + "', la cui provincia (nel csv) "
+                                                        + "è '" + nomeProvinciaAggiustato + "', nemmeno la provincia 'Verbania' è stata trovata.");
+                        }
+                        
+                        Provincia provinciaVerbaniaFromDB = forseProvinciaVerbania.get();
+
+                        Comune nuovoComune = new Comune(provinciaVerbaniaFromDB, nomeComuneAggiustato);
+                        // salva il comune
+                        this.comuniRepository.save(nuovoComune);
+                        
+                    }
+
+                    // *******************************************
+                    // EDGE CASE: Valle d'Aosta/Vallée d'Aoste (provincia dal comune) -> Valle d'Aosta (provincia reale)
+                    // *******************************************
+                    
+                    else if (forseProvincia.isEmpty() && provinciaEValleDaostaValleDaoste) {
+
+                        //  trova la provincia di Aosta
+                        Optional<Provincia> forseProvinciaAosta = this.provinceRepository.trovaProvinciaPerNomeEsatto("Aosta");
+
+                        // nemmeno la provincia di Aosta esiste
+                        // questo dovrebbe essere raro
+                        if(forseProvinciaAosta.isEmpty()) {
+                            throw new PopolaDBException("Durante il caricamento del comune '"
+                                                + nomeComune + "', la cui provincia (nel csv) "
+                                                + "è '" + nomeProvinciaAggiustato + "', nemmeno la provincia 'Aosta' è stata trovata.");
+                        }
+
+                        Provincia provinciaAostaFromDB = forseProvinciaAosta.get();
+
+                        Comune nuovoComune = new Comune(provinciaAostaFromDB, nomeComuneAggiustato);
+                        // salva il comune
+                        this.comuniRepository.save(nuovoComune);
+                        
+                    }
+
+                    // *******************************************
+                    // EDGE CASE: Monza e della Brianza (provincia dal comune) -> Monza-Brianza (provincia reale)
+                    // *******************************************
+                    
+                    else if (forseProvincia.isEmpty() && provinciaMonzaEDellaBrianza) {
+
+                        //  trova la provincia di Monza-Brianza
+                        Optional<Provincia> forseProvinciaMonzaBrianza = this.provinceRepository.trovaProvinciaPerNomeEsatto("Monza-Brianza");
+
+                        // nemmeno la provincia di Monza-Brianza esiste
+                        // questo dovrebbe essere raro
+                        if(forseProvinciaMonzaBrianza.isEmpty()) {
+                            throw new PopolaDBException("Durante il caricamento del comune '"
+                                            + nomeComune + "', la cui provincia (nel csv) "
+                                            + "è '" + nomeProvinciaAggiustato + "', nemmeno la provincia 'Monza-Brianza' è stata trovata.");
+                        }
+
+                        Provincia provinciaMonzaBrianzaFromDB = forseProvinciaMonzaBrianza.get();
+
+                        Comune nuovoComune = new Comune(provinciaMonzaBrianzaFromDB, nomeComuneAggiustato);
+                        // salva il comune
+                        this.comuniRepository.save(nuovoComune);
+                        
+                    }
+
+                    // *******************************************
+                    // EDGE CASE: Bolzano/Bozen (provincia dal comune) -> Bolzano (provincia reale)
+                    // *******************************************
+
+                    else if (forseProvincia.isEmpty() && provinciaBolzanoBozen) {
+
+                        //  trova la provincia di Bolzano
+                        Optional<Provincia> forseProvinciaBolzano = this.provinceRepository.trovaProvinciaPerNomeEsatto("Bolzano");
+
+                        // nemmeno la provincia di Bolzano esiste
+                        // questo dovrebbe essere raro
+                        if(forseProvinciaBolzano.isEmpty()) {
+                            throw new PopolaDBException("Durante il caricamento del comune '"
+                                    + nomeComune + "', la cui provincia (nel csv) "
+                                    + "è '" + nomeProvinciaAggiustato + "', nemmeno la provincia 'Bolzano' è stata trovata.");
+                        }
+
+                        Provincia provinciaBolzanoFromDB = forseProvinciaBolzano.get();
+
+                        Comune nuovoComune = new Comune(provinciaBolzanoFromDB, nomeComuneAggiustato);
+                        // salva il comune
+                        this.comuniRepository.save(nuovoComune);
+
+                    }
+
+                    // *******************************************
+                    // EDGE CASE: La Spezia (provincia dal comune) -> La-Spezia (provincia reale)
+                    // *******************************************
+
+                    else if (forseProvincia.isEmpty() && provinciaLaSpeziaConSpazio) {
+
+                        //  trova la provincia di La-Spezia
+                        Optional<Provincia> forseProvinciaLaSpeziaConTrattino = this.provinceRepository.trovaProvinciaPerNomeEsatto("La-Spezia");
+
+                        // nemmeno la provincia di La-Spezia esiste
+                        // questo dovrebbe essere raro
+                        if(forseProvinciaLaSpeziaConTrattino.isEmpty()) {
+                            throw new PopolaDBException("Durante il caricamento del comune '"
+                                    + nomeComune + "', la cui provincia (nel csv) "
+                                    + "è '" + nomeProvinciaAggiustato + "', nemmeno la provincia 'La-Spezia' è stata trovata.");
+                        }
+
+                        Provincia provinciaLaSpeziaConTrattinoFromDB = forseProvinciaLaSpeziaConTrattino.get();
+
+                        Comune nuovoComune = new Comune(provinciaLaSpeziaConTrattinoFromDB, nomeComuneAggiustato);
+                        // salva il comune
+                        this.comuniRepository.save(nuovoComune);
+
+                    }
+
+
+                    // *******************************************
+                    // EDGE CASE: Reggio nell'Emilia (provincia dal comune) -> Reggio-Emilia (provincia reale)
+                    // *******************************************
+
+                    else if (forseProvincia.isEmpty() && provinciaReggioNellEmilia) {
+
+                        //  trova la provincia di Reggio-Emilia
+                        Optional<Provincia> forseProvinciaReggioEmilia = this.provinceRepository.trovaProvinciaPerNomeEsatto("Reggio-Emilia");
+
+                        // nemmeno la provincia di Reggio-Emilia esiste
+                        // questo dovrebbe essere raro
+                        if(forseProvinciaReggioEmilia.isEmpty()) {
+                            throw new PopolaDBException("Durante il caricamento del comune '"
+                                    + nomeComune + "', la cui provincia (nel csv) "
+                                    + "è '" + nomeProvinciaAggiustato + "', nemmeno la provincia 'Reggio-Emilia' è stata trovata.");
+                        }
+
+                        Provincia provinciaReggioEmiliaFromDB = forseProvinciaReggioEmilia.get();
+
+                        Comune nuovoComune = new Comune(provinciaReggioEmiliaFromDB, nomeComuneAggiustato);
+                        // salva il comune
+                        this.comuniRepository.save(nuovoComune);
+
+                    }
+
+
+                    // *******************************************
+                    // EDGE CASE: Forlì-Cesena (provincia dal comune) -> Forli-Cesena (provincia reale)
+                    // *******************************************
+
+                    else if (forseProvincia.isEmpty() && provinciaForliCesenaConIAccentata) {
+
+                        //  trova la provincia di Forli-Cesena
+                        Optional<Provincia> forseProvinciaForliCesena = this.provinceRepository.trovaProvinciaPerNomeEsatto("Forli-Cesena");
+
+                        // nemmeno la provincia di Forli-Cesena esiste
+                        // questo dovrebbe essere raro
+                        if(forseProvinciaForliCesena.isEmpty()) {
+                            throw new PopolaDBException("Durante il caricamento del comune '"
+                                    + nomeComune + "', la cui provincia (nel csv) "
+                                    + "è '" + nomeProvinciaAggiustato + "', nemmeno la provincia 'Forli-Cesena' è stata trovata.");
+                        }
+
+                        Provincia provinciaForliCesenaFromDB = forseProvinciaForliCesena.get();
+
+                        Comune nuovoComune = new Comune(provinciaForliCesenaFromDB, nomeComuneAggiustato);
+                        // salva il comune
+                        this.comuniRepository.save(nuovoComune);
+
+                    }
+
+
+                    // *******************************************
+                    // EDGE CASE: Pesaro e Urbino (provincia dal comune) -> Pesaro-Urbino (provincia reale)
+                    // *******************************************
+
+                    else if (forseProvincia.isEmpty() && provinciaPesaroEUrbino) {
+
+                        //  trova la provincia di Pesaro-Urbino
+                        Optional<Provincia> forseProvinciaPesaroUrbinoConTrattino = this.provinceRepository.trovaProvinciaPerNomeEsatto("Pesaro-Urbino");
+
+                        // nemmeno la provincia di Pesaro-Urbino esiste
+                        // questo dovrebbe essere raro
+                        if(forseProvinciaPesaroUrbinoConTrattino.isEmpty()) {
+                            throw new PopolaDBException("Durante il caricamento del comune '"
+                                    + nomeComune + "', la cui provincia (nel csv) "
+                                    + "è '" + nomeProvinciaAggiustato + "', nemmeno la provincia 'Pesaro-Urbino' è stata trovata.");
+                        }
+
+                        Provincia provinciaPesaroUrbinoConTrattinoFromDB = forseProvinciaPesaroUrbinoConTrattino.get();
+
+                        Comune nuovoComune = new Comune(provinciaPesaroUrbinoConTrattinoFromDB, nomeComuneAggiustato);
+                        // salva il comune
+                        this.comuniRepository.save(nuovoComune);
+
+                    }
+
+
+                    // *******************************************
+                    // EDGE CASE: Ascoli Piceno (provincia dal comune) -> Ascoli-Piceno (provincia reale)
+                    // *******************************************
+
+                    else if (forseProvincia.isEmpty() && provinciaAscoliPiceno) {
+
+                        //  trova la provincia di Ascoli-Piceno
+                        Optional<Provincia> forseProvinciaAscoliPicenoConTrattino = this.provinceRepository.trovaProvinciaPerNomeEsatto("Ascoli-Piceno");
+
+                        // nemmeno la provincia di Ascoli-Piceno esiste
+                        // questo dovrebbe essere raro
+                        if(forseProvinciaAscoliPicenoConTrattino.isEmpty()) {
+                            throw new PopolaDBException("Durante il caricamento del comune '"
+                                    + nomeComune + "', la cui provincia (nel csv) "
+                                    + "è '" + nomeProvinciaAggiustato + "', nemmeno la provincia 'Ascoli-Piceno' è stata trovata.");
+                        }
+
+                        Provincia provinciaAscoliPicenoConTrattinoFromDB = forseProvinciaAscoliPicenoConTrattino.get();
+
+                        Comune nuovoComune = new Comune(provinciaAscoliPicenoConTrattinoFromDB, nomeComuneAggiustato);
+                        // salva il comune
+                        this.comuniRepository.save(nuovoComune);
+
+                    }
+
+
+
+                    // *******************************************
+                    // EDGE CASE: Reggio Calabria (provincia dal comune) -> Reggio-Calabria (provincia reale)
+                    // *******************************************
+
+                    else if (forseProvincia.isEmpty() && provinciaReggioCalabria) {
+
+                        //  trova la provincia di Reggio-Calabria
+                        Optional<Provincia> forseProvinciaReggioCalabriaConTrattino = this.provinceRepository.trovaProvinciaPerNomeEsatto("Reggio-Calabria");
+
+                        // nemmeno la provincia di Reggio-Calabria esiste
+                        // questo dovrebbe essere raro
+                        if(forseProvinciaReggioCalabriaConTrattino.isEmpty()) {
+                            throw new PopolaDBException("Durante il caricamento del comune '"
+                                                + nomeComune + "', la cui provincia (nel csv) "
+                                                + "è '" + nomeProvinciaAggiustato + "', nemmeno la provincia 'Reggio-Calabria' è stata trovata.");
+                        }
+
+                        Provincia provinciaReggioCalabriaConTrattinoFromDB = forseProvinciaReggioCalabriaConTrattino.get();
+
+                        Comune nuovoComune = new Comune(provinciaReggioCalabriaConTrattinoFromDB, nomeComuneAggiustato);
+                        // salva il comune
+                        this.comuniRepository.save(nuovoComune);
+
+                    }
+
+
+                    // *******************************************
+                    // EDGE CASE: Vibo Valentia (provincia dal comune) -> Vibo-Valentia (provincia reale)
+                    // *******************************************
+
+                    else if (forseProvincia.isEmpty() && provinciaViboValentia) {
+
+                        //  trova la provincia di Vibo-Valentia
+                        Optional<Provincia> forseProvinciaViboValentiaConTrattino = this.provinceRepository.trovaProvinciaPerNomeEsatto("Vibo-Valentia");
+
+                        // nemmeno la provincia di Vibo-Valentia esiste
+                        // questo dovrebbe essere raro
+                        if(forseProvinciaViboValentiaConTrattino.isEmpty()) {
+                            throw new PopolaDBException("Durante il caricamento del comune '"
+                                    + nomeComune + "', la cui provincia (nel csv) "
+                                    + "è '" + nomeProvinciaAggiustato + "', nemmeno la provincia 'Vibo-Valentia' è stata trovata.");
+                        }
+
+                        Provincia provinciaViboValentiaConTrattinoFromDB = forseProvinciaViboValentiaConTrattino.get();
+
+                        Comune nuovoComune = new Comune(provinciaViboValentiaConTrattinoFromDB, nomeComuneAggiustato);
+                        // salva il comune
+                        this.comuniRepository.save(nuovoComune);
+
+                    }
+
+
+                    // *******************************************
+                    // EDGE CASE: Sud Sardegna (provincia dal comune) -> Carbonia Iglesias (provincia reale)
+                    // *******************************************
+
+                    else if (forseProvincia.isEmpty() && provinciaESudSardegna) {
+
+                        //  trova la provincia di Carbonia Iglesias
+                        Optional<Provincia> forseProvinciaCarboniaIglesias = this.provinceRepository.trovaProvinciaPerNomeEsatto("Carbonia Iglesias");
+
+                        // nemmeno la provincia di Carbonia Iglesias esiste
+                        // questo dovrebbe essere raro
+                        if(forseProvinciaCarboniaIglesias.isEmpty()) {
+                            throw new PopolaDBException("Durante il caricamento del comune '"
+                                    + nomeComune + "', la cui provincia (nel csv) "
+                                    + "è '" + nomeProvinciaAggiustato + "', nemmeno la provincia 'Carbonia Iglesias' è stata trovata.");
+                        }
+
+                        Provincia provinciaCarboniaIglesiasFromDB = forseProvinciaCarboniaIglesias.get();
+
+                        Comune nuovoComune = new Comune(provinciaCarboniaIglesiasFromDB, nomeComuneAggiustato);
+                        // salva il comune
+                        this.comuniRepository.save(nuovoComune);
+
+                    }
+
+
+                    // provincia non esiste in DB: edge case non gestito
+                    else if(forseProvincia.isEmpty()) {
+                        throw new PopolaDBException("Durante il caricamento del comune '" + nomeComune + "' da csv, "
+                                                    +"nella tabella delle province "
+                                                    +" non è stata trovata una provincia il cui nome provincia corrisponde "
+                                                    +"esattamente con '" + nomeProvincia + "'. Possibili motivi: non esiste questa provincia nella "
+                                                    +"tabella delle province, o la provincia di questo comune non "
+                                                    +"corrisponde esattamente a una provincia in DB.");
+                    } 
+                    // nessun errore
+                    else {
+                        // la managed entity dal DB
+                        Provincia provinciaFromDB = forseProvincia.get();
+
+                        Comune nuovoComune = new Comune(provinciaFromDB, nomeComuneAggiustato);
+                        // salva il comune
+                        this.comuniRepository.save(nuovoComune);              
+                    }
+                    
+
+                }
+            } catch (CsvValidationException e) {
+                throw new PopolaDBException(e.getMessage());
+            }
+        }
     }
+
 
     /**
      * Devo caricare comuni e province?
