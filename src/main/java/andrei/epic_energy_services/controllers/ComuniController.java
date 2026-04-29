@@ -1,12 +1,14 @@
 package andrei.epic_energy_services.controllers;
 
 import andrei.epic_energy_services.entities.Comune;
+import andrei.epic_energy_services.entities.Utente;
 import andrei.epic_energy_services.exceptions.InvalidDataException;
 import andrei.epic_energy_services.exceptions.InvalidDataFormatException;
 import andrei.epic_energy_services.payloads.in_response.ComuneDaMandareDTO;
 import andrei.epic_energy_services.services.ComuniService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -27,6 +29,8 @@ public class ComuniController {
                                                     @RequestParam(defaultValue = "10") int size,
                                                     @RequestParam(defaultValue = "") String nomeComune) throws InvalidDataException
     {
+
+        
         // non è stato fornito il query param
         if(nomeComune == null) {
             throw new InvalidDataException("Manca il query param 'nomeComune'.");
