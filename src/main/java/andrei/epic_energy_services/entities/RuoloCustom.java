@@ -1,15 +1,11 @@
 package andrei.epic_energy_services.entities;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
 @Entity
 @Table(name = "ruoli_custom")
-@Getter
-@NoArgsConstructor
 public class RuoloCustom {
 
     @Id
@@ -20,7 +16,19 @@ public class RuoloCustom {
     @Column(name = "ruolo_custom", unique = true)
     private String ruoloCustom;
 
+    protected RuoloCustom() {
+
+    }
+
     public RuoloCustom(String ruoloCustom) {
         this.ruoloCustom = ruoloCustom.toLowerCase();
+    }
+
+    public UUID getIdRuoloCustom() {
+        return idRuoloCustom;
+    }
+
+    public String getRuoloCustom() {
+        return ruoloCustom;
     }
 }

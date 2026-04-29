@@ -15,7 +15,6 @@ Request
 
 Esempio payload in Request
 
-
 ```
 {
     "email": "giuseppetavella8@gmail.com",
@@ -23,7 +22,6 @@ Esempio payload in Request
 }
 
 ```
-
 
 Response
 
@@ -58,7 +56,6 @@ Esempio payload in Request
     "username": "tave8"
 }
 ```
-
 
 Response
 
@@ -223,6 +220,7 @@ Response
 stesso di richiesta più
 {
     idRuoloCustom: str
+    ruoloCustom: str
 }
 ```
 
