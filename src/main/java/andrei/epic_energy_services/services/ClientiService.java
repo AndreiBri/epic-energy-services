@@ -7,11 +7,13 @@ import andrei.epic_energy_services.payloads.in_request.AggiornaClienteDTO;
 import andrei.epic_energy_services.payloads.in_request.NuovoClienteMandatoDTO;
 import andrei.epic_energy_services.payloads.in_response.ClienteDaMandareDTO;
 import andrei.epic_energy_services.repositories.ClientiRepository;
+import andrei.epic_energy_services.specification.ClientiSpecification;
 import com.cloudinary.Cloudinary;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -31,13 +33,34 @@ public class ClientiService {
     private Cloudinary cloudinary;
 
     // ---------- GET tutti i clienti ----------
+    private ClienteDaMandareDTO mapCliente(Cliente c) {
+        return new ClienteDaMandareDTO(
+                c.getIdCliente(),
+                c.getRagioneSociale(),
+                c.getPartitaIva(),
+                c.getEmail(),
+                c.getPec(),
+                c.getTelefono(),
+                c.getEmailContatto(),
+                c.getNomeContatto(),
+                c.getCognomeContatto(),
+                c.getTelefonoContatto(),
+                c.getFatturatoAnnuale(),
+                c.getLogoAziendaleUrl(),
+                c.getFormaGiuridica(),
+                c.getDataInserimento(),
+                c.getDataUltimoContatto()
+        );
+    }
+
     public Page<ClienteDaMandareDTO> getAllClienti(
             int page, int size,
             BigDecimal fatturatoAnnuale,
             LocalDate dataInserimento,
             LocalDate dataUltimoContatto,
-            String nome,
+            String ragioneSociale,
             String sortBy,
+            String nomeProvincia,
             String sortDir
     ) {
         Sort.Direction direction;
@@ -59,26 +82,41 @@ public class ClientiService {
             sortField = "ragioneSociale";
         }
 
+        Specification<Cliente> spec = Specification
+                .where(ClientiSpecification.hasFatturatoAnnuale(fatturatoAnnuale))
+                .and(ClientiSpecification.hasDataInserimento(dataInserimento))
+                .and(ClientiSpecification.hasDataUltimoContatto(dataUltimoContatto))
+                .and(ClientiSpecification.hasragioneSociale(ragioneSociale))
+                .and(ClientiSpecification.hasProvinciaSedeLegale(nomeProvincia));
+
+        if ("provinciaSedeLegale".equalsIgnoreCase(sortBy)) {
+            spec = spec.and(ClientiSpecification.hasProvinciaSedeLegale(nomeProvincia));
+            PageRequest pageable = PageRequest.of(page, size);
+            return clientiRepository.findAll(spec, pageable).map(clienti -> mapCliente(clienti));
+        }
+
         PageRequest pageable = PageRequest.of(page, size, Sort.by(direction, sortField));
-        return clientiRepository.findAllWithFilters(
-                        fatturatoAnnuale, dataInserimento, dataUltimoContatto, nome, pageable)
-                .map(c -> new ClienteDaMandareDTO(
-                        c.getIdCliente(),
-                        c.getRagioneSociale(),
-                        c.getPartitaIva(),
-                        c.getEmail(),
-                        c.getPec(),
-                        c.getTelefono(),
-                        c.getEmailContatto(),
-                        c.getNomeContatto(),
-                        c.getCognomeContatto(),
-                        c.getTelefonoContatto(),
-                        c.getFatturatoAnnuale(),
-                        c.getLogoAziendaleUrl(),
-                        c.getFormaGiuridica(),
-                        c.getDataInserimento(),
-                        c.getDataUltimoContatto()
-                ));
+//        return clientiRepository.findAllWithFilters(
+//                        fatturatoAnnuale, dataInserimento, dataUltimoContatto, ragioneSociale, pageable)
+//                .map(c -> new ClienteDaMandareDTO(
+//                        c.getIdCliente(),
+//                        c.getRagioneSociale(),
+//                        c.getPartitaIva(),
+//                        c.getEmail(),
+//                        c.getPec(),
+//                        c.getTelefono(),
+//                        c.getEmailContatto(),
+//                        c.getNomeContatto(),
+//                        c.getCognomeContatto(),
+//                        c.getTelefonoContatto(),
+//                        c.getFatturatoAnnuale(),
+//                        c.getLogoAziendaleUrl(),
+//                        c.getFormaGiuridica(),
+//                        c.getDataInserimento(),
+//                        c.getDataUltimoContatto()
+//                ));
+
+        return clientiRepository.findAll(spec, pageable).map(this::mapCliente);
     }
 
     // ---------- GET singolo cliente ----------

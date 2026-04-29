@@ -35,7 +35,8 @@ public class ClientiController {
             @RequestParam(required = false) BigDecimal fatturatoAnnuale,
             @RequestParam(required = false) LocalDate dataInserimento,
             @RequestParam(required = false) LocalDate dataUltimoContatto,
-            @RequestParam(required = false) String nome,
+            @RequestParam(required = false) String ragioneSociale,
+            @RequestParam(required = false) String nomeProvincia,
             // ordinamento - default per ragione sociale
             @RequestParam(defaultValue = "ragioneSociale") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDir
@@ -45,7 +46,8 @@ public class ClientiController {
                 fatturatoAnnuale,
                 dataInserimento,
                 dataUltimoContatto,
-                nome, sortBy, sortDir);
+                ragioneSociale,
+                sortBy, nomeProvincia, sortDir);
     }
 
     // GET /clienti/:clienteId - singolo cliente
