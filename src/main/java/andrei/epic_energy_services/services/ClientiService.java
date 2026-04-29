@@ -75,7 +75,9 @@ public class ClientiService {
                         c.getTelefonoContatto(),
                         c.getFatturatoAnnuale(),
                         c.getLogoAziendaleUrl(),
-                        c.getFormaGiuridica()
+                        c.getFormaGiuridica(),
+                        c.getDataInserimento(),
+                        c.getDataUltimoContatto()
                 ));
     }
 
@@ -96,7 +98,9 @@ public class ClientiService {
                 cliente.getTelefonoContatto(),
                 cliente.getFatturatoAnnuale(),
                 cliente.getLogoAziendaleUrl(),
-                cliente.getFormaGiuridica()
+                cliente.getFormaGiuridica(),
+                cliente.getDataInserimento(),
+                cliente.getDataUltimoContatto()
         );
     }
 
@@ -134,7 +138,9 @@ public class ClientiService {
                 salvato.getTelefonoContatto(),
                 salvato.getFatturatoAnnuale(),
                 salvato.getLogoAziendaleUrl(),
-                salvato.getFormaGiuridica()
+                salvato.getFormaGiuridica(),
+                salvato.getDataInserimento(),
+                salvato.getDataUltimoContatto()
         );
     }
 
@@ -170,7 +176,9 @@ public class ClientiService {
                 salvato.getTelefonoContatto(),
                 salvato.getFatturatoAnnuale(),
                 salvato.getLogoAziendaleUrl(),
-                salvato.getFormaGiuridica()
+                salvato.getFormaGiuridica(),
+                salvato.getDataInserimento(),
+                salvato.getDataUltimoContatto()
         );
     }
 
@@ -197,7 +205,9 @@ public class ClientiService {
                 salvato.getTelefonoContatto(),
                 salvato.getFatturatoAnnuale(),
                 salvato.getLogoAziendaleUrl(),
-                salvato.getFormaGiuridica()
+                salvato.getFormaGiuridica(),
+                salvato.getDataInserimento(),
+                salvato.getDataUltimoContatto()
         );
     }
 
