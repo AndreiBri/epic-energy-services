@@ -8,17 +8,12 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
-import org.springframework.util.PathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
-import java.util.UUID;
 
 
 @Component
@@ -45,11 +40,11 @@ public class TokenFilter extends OncePerRequestFilter {
     }
 
     /**
-     * NOTE: 
+     * NOTE:
      * You should take care of standardizing the exceptions thrown at this level
      * (Security Filter Chain) with those thrown at the Controller level.
-     *      
-     * here we are in the Security Filter Chain layer, and 
+     * <p>
+     * here we are in the Security Filter Chain layer, and
      * we do not have access to the Spring exception catching abstraction.
      * Therefore we need to must build our error responses manually,
      * ideally using the same JSON class, and therefore the same JSON response,
@@ -58,40 +53,39 @@ public class TokenFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException, UnauthorizedException
-    {
+                                    FilterChain filterChain) throws ServletException, IOException, UnauthorizedException {
 
         // verify that header contains access token
         String authHeader = request.getHeader("Authorization");
-        
+
         boolean authHeaderNotExists = authHeader == null;
-        
+
         // authorization header does not exist
-        if(authHeaderNotExists) {
-            this.sendUnauthorizedErrorResponse(response,"Missing Authorization header. The requested resource was defined "
-                                                                 +"to require user authentication expressed "
-                                                                 +"through the Authorization header in the request, however "
-                                                                 +"no such header was found. Therefore this resource cannot be accessed."
-                                                                  +"Either this resource should not be protected, "
-                                                                    +"or the Authorization header is missing.");
+        if (authHeaderNotExists) {
+            this.sendUnauthorizedErrorResponse(response, "Missing Authorization header. The requested resource was defined "
+                    + "to require user authentication expressed "
+                    + "through the Authorization header in the request, however "
+                    + "no such header was found. Therefore this resource cannot be accessed."
+                    + "Either this resource should not be protected, "
+                    + "or the Authorization header is missing.");
             return;
         }
-        
+
         boolean tokenNotExists = !authHeader.startsWith("Bearer ");
-        
+
         // access token does not exist
-        if(tokenNotExists) {
-            this.sendUnauthorizedErrorResponse(response,"Missing access token in Authorization header. "
-                                                                +"The requested resource was defined to require user authentication expressed "
-                                                                    +"through the Authorization header in the request, however "
-                                                                    +"the access token was not found in such header. Therefore this resource "
-                                                                    +"cannot be accessed."
-                                                                    +"Either this resource should not be protected, or the access token is missing."
-                                                                    +"Make sure that the access token is in Authorization header with "
-                                                                    +"exactly this format 'Bearer mytoken'");
+        if (tokenNotExists) {
+            this.sendUnauthorizedErrorResponse(response, "Missing access token in Authorization header. "
+                    + "The requested resource was defined to require user authentication expressed "
+                    + "through the Authorization header in the request, however "
+                    + "the access token was not found in such header. Therefore this resource "
+                    + "cannot be accessed."
+                    + "Either this resource should not be protected, or the access token is missing."
+                    + "Make sure that the access token is in Authorization header with "
+                    + "exactly this format 'Bearer mytoken'");
             return;
         }
-        
+
 
         // we get the token
         String accessToken = authHeader.replace("Bearer ", "");
@@ -101,9 +95,9 @@ public class TokenFilter extends OncePerRequestFilter {
             // verify that token is valid etc.
             // tokenTools.verifyToken(accessToken);
 
-        } catch(UnauthorizedException ex) {
-            this.sendUnauthorizedErrorResponse(response,"Access token is expired, malformed or has been tampered with. "
-                                                                 +"The user should try to do a new login, and see if that solves the problem.");
+        } catch (UnauthorizedException ex) {
+            this.sendUnauthorizedErrorResponse(response, "Access token is expired, malformed or has been tampered with. "
+                    + "The user should try to do a new login, and see if that solves the problem.");
             return;
         }
 
@@ -119,10 +113,10 @@ public class TokenFilter extends OncePerRequestFilter {
         try {
             // currentUser = this.usersService.findById(userId);
         } catch (NotFoundException ex) {
-            this.sendUnauthorizedErrorResponse(response,"Access token was valid but "
-                                                                +"the user associated to it no longer exists. User ID was: '"
-                                                                // + userId + "'. Maybe the user was deleted?"
-            
+            this.sendUnauthorizedErrorResponse(response, "Access token was valid but "
+                            + "the user associated to it no longer exists. User ID was: '"
+                    // + userId + "'. Maybe the user was deleted?"
+
             );
             return;
         }
@@ -155,8 +149,10 @@ public class TokenFilter extends OncePerRequestFilter {
         boolean isAuthPath = matcher.match("/auth/**", path);
         boolean isRoot = matcher.match("/", path);
         boolean isComuni = matcher.match("/comuni/**", path);
-        
-        return isAuthPath || isRoot || isComuni;
+        boolean isUtenti = matcher.match("/utenti/**", path);
+
+
+        return isAuthPath || isRoot || isComuni || isUtenti;
     }
 
 }
