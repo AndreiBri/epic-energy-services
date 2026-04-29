@@ -17,6 +17,18 @@ Request
 }
 ```
 
+Esempio payload in Request
+
+
+```
+{
+    "email": "giuseppetavella8@gmail.com",
+    "password": "123456"
+}
+
+```
+
+
 Response
 
 ```
@@ -38,6 +50,19 @@ Request
     cognome: str
 }
 ```
+
+Esempio payload in Request
+
+```
+{
+    "email": "giuseppetavella8@gmail.com",
+    "password": "123456",
+    "nome": "Giuseppe",
+    "cognome": "Tavella",
+    "username": "tave8"
+}
+```
+
 
 Response
 
@@ -278,8 +303,29 @@ vedi sopra
 
 
 
+## /comuni
 
 
+### GET /
+
+Request 
+
+Query params: 
+    nomeComune
+
+
+
+Response 
+
+```
+content: [
+    {
+        idComune: str
+        idProvincia: str
+        nomeComune: str
+    }
+]
+```
 
 
 

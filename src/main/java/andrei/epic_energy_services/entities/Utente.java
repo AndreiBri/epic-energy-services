@@ -44,13 +44,15 @@ public class Utente {
     @Column(nullable = false)
     private RuoloUtente ruolo;
 
-    public Utente(String username, String email, String password, String nome, String cognome, String avatarUrl, RuoloUtente ruolo) {
+    public Utente(String username, String email, String password, String nome, String cognome) {
         this.username = username;
         this.email = email;
         this.password = password;
         this.nome = nome;
         this.cognome = cognome;
-        this.avatarUrl = avatarUrl;
-        this.ruolo = ruolo;
+        // per adesso imposto l'avatar url come una stringa vuota
+        this.avatarUrl = "";
+        // per adesso assumiamo che l'utente abbia ruolo USER come default
+        this.ruolo = RuoloUtente.USER;
     }
 }
