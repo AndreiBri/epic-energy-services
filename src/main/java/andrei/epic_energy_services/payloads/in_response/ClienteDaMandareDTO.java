@@ -3,6 +3,7 @@ package andrei.epic_energy_services.payloads.in_response;
 import andrei.epic_energy_services.enums.FormaGiuridica;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.UUID;
 
 public record ClienteDaMandareDTO(
@@ -18,6 +19,8 @@ public record ClienteDaMandareDTO(
         String telefonoContatto,
         BigDecimal fatturatoAnnuale,
         String logoAziendaleUrl,
-        FormaGiuridica formaGiuridica
+        FormaGiuridica formaGiuridica,
+        LocalDate dataInserimento,
+        LocalDate DataUltimoContatto
 ) {
 }
