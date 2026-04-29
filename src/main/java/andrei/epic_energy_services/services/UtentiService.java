@@ -2,6 +2,7 @@ package andrei.epic_energy_services.services;
 
 import andrei.epic_energy_services.entities.Utente;
 import andrei.epic_energy_services.enums.RuoloUtente;
+import andrei.epic_energy_services.payloads.in_request.RegistrazioneMandataDTO;
 import andrei.epic_energy_services.repositories.RuoliCustomRepository;
 import andrei.epic_energy_services.repositories.UtentiRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -33,6 +34,22 @@ public class UtentiService {
 
     public Utente findByUsername(String username) {
         return utenteRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("Utente non trovato"));
+    }
+
+    /**
+     * Aggiungi un utente nel DB.
+     * Passa il payload della richiesta, 
+     * con all'interno i dati dell'utente.
+     */
+    public Utente create(RegistrazioneMandataDTO body) {
+        Utente utente = new Utente(
+                body.username(),
+                body.email(),
+                body.password(),
+                body.nome(),
+                body.cognome()
+        );
+        return this.create(utente);
     }
 
     public Utente create(Utente utente) {
