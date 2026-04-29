@@ -12,8 +12,6 @@ import java.util.UUID;
                 @UniqueConstraint(columnNames = {"id_utente", "id_ruolo_custom"})
         }
 )
-@Getter
-@NoArgsConstructor
 public class UtenteRuoloCustom {
 
     @Id
@@ -29,8 +27,22 @@ public class UtenteRuoloCustom {
     @JoinColumn(name = "id_ruolo_custom", nullable = false)
     private RuoloCustom ruoloCustom;
 
+    protected UtenteRuoloCustom() {}
+    
     public UtenteRuoloCustom(Utente utente, RuoloCustom ruoloCustom) {
         this.utente = utente;
         this.ruoloCustom = ruoloCustom;
+    }
+
+    public UUID getIdUtenteRuoloCustom() {
+        return idUtenteRuoloCustom;
+    }
+
+    public RuoloCustom getRuoloCustom() {
+        return ruoloCustom;
+    }
+
+    public Utente getUtente() {
+        return utente;
     }
 }

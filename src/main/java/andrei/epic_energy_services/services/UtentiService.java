@@ -2,6 +2,7 @@ package andrei.epic_energy_services.services;
 
 import andrei.epic_energy_services.entities.Utente;
 import andrei.epic_energy_services.enums.RuoloUtente;
+import andrei.epic_energy_services.exceptions.NotFoundException;
 import andrei.epic_energy_services.payloads.in_request.RegistrazioneMandataDTO;
 import andrei.epic_energy_services.repositories.RuoliCustomRepository;
 import andrei.epic_energy_services.repositories.UtentiRepository;
@@ -35,7 +36,7 @@ public class UtentiService {
     }
 
     public Utente findById(UUID id) {
-        return utenteRepository.findById(id).orElseThrow(() -> new RuntimeException("Utente non trovato per ID"));
+        return utenteRepository.findById(id).orElseThrow(() -> new NotFoundException("Utente non trovato per ID"));
     }
 
     public Utente findByUsername(String username) {
@@ -46,7 +47,7 @@ public class UtentiService {
      * Trova un utente per email.
      */
     public Utente findByEmail(String email) {
-        return utenteRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Utente non trovato per email"));
+        return utenteRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Utente non trovato per email"));
     }
 
     /**
