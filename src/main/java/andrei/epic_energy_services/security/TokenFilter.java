@@ -154,8 +154,9 @@ public class TokenFilter extends OncePerRequestFilter {
 
         boolean isAuthPath = matcher.match("/auth/**", path);
         boolean isRoot = matcher.match("/", path);
+        boolean isComuni = matcher.match("/comuni/**", path);
         
-        return isAuthPath || isRoot;
+        return isAuthPath || isRoot || isComuni;
     }
 
 }

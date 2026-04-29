@@ -1,8 +1,9 @@
 package andrei.epic_energy_services.controllers;
 
 import andrei.epic_energy_services.entities.Sede;
-import andrei.epic_energy_services.enums.TipoSede;
+import andrei.epic_energy_services.payloads.in_request.SedeDTO;
 import andrei.epic_energy_services.services.SediService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,27 +34,33 @@ public class SediController {
     // @PreAuthorize("hasAnyAuthority('ADMIN')")
     public Sede createSede(
             @RequestParam UUID idCliente,
-            @RequestParam UUID idComune,
-            @RequestParam TipoSede tipoSede,
-            @RequestParam String via,
-            @RequestParam String civico,
-            @RequestParam(required = false) String localita,
-            @RequestParam String cap
+            @RequestBody @Valid SedeDTO body
     ) {
-        return sediService.createSede(idCliente, idComune, tipoSede, via, civico, localita, cap);
+        return sediService.createSede(
+                idCliente,
+                body.idComune(),
+                body.tipoSede(),
+                body.via(),
+                body.civico(),
+                body.localita(),
+                body.cap()
+        );
     }
 
     @PutMapping("/{idSede}")
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     public Sede updateSede(
             @PathVariable UUID idSede,
-            @RequestParam UUID idComune,
-            @RequestParam String via,
-            @RequestParam String civico,
-            @RequestParam(required = false) String localita,
-            @RequestParam String cap
+            @RequestBody @Valid SedeDTO body
     ) {
-        return sediService.updateSede(idSede, idComune, via, civico, localita, cap);
+        return sediService.updateSede(
+                idSede,
+                body.idComune(),
+                body.via(),
+                body.civico(),
+                body.localita(),
+                body.cap()
+        );
     }
 
     @DeleteMapping("/{idSede}")
