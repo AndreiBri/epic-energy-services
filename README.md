@@ -214,14 +214,27 @@ Request
 }
 ```
 
+
+## /ruoli-custom
+
+### GET /
+
+Request
+
+```
+<no body>
+```
+
 Response
 
 ```
-stesso di richiesta più
-{
-    idRuoloCustom: str
-    ruoloCustom: str
-}
+[
+    {
+        idRuoloCustom: str
+        ruoloCustom: str   
+    }
+]
+
 ```
 
 ### POST /:ruoloCustomId/utenti/:utenteId  (aggiungi un'associazione tra un ruolo custom e un utente)
