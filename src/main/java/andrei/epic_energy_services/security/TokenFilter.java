@@ -1,8 +1,12 @@
 package andrei.epic_energy_services.security;
 
 
+import andrei.epic_energy_services.entities.Utente;
 import andrei.epic_energy_services.exceptions.NotFoundException;
 import andrei.epic_energy_services.exceptions.UnauthorizedException;
+import andrei.epic_energy_services.payloads.in_response.ErrorsToSendDTO;
+import andrei.epic_energy_services.services.UtentiService;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,8 +31,8 @@ public class TokenFilter extends OncePerRequestFilter {
     @Autowired
     private TokenTools tokenTools;
 
-    // @Autowired
-    // private UsersService usersService;
+    @Autowired
+    private UtentiService utentiService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -40,8 +44,8 @@ public class TokenFilter extends OncePerRequestFilter {
         response.setStatus(401);
         response.setContentType("application/json");
 
-        // ErrorsToSendDTO error = new ErrorsToSendDTO(message);
-        // response.getWriter().write(objectMapper.writeValueAsString(error));
+        ErrorsToSendDTO error = new ErrorsToSendDTO(message);
+        response.getWriter().write(objectMapper.writeValueAsString(error));
     }
 
     /**
@@ -99,7 +103,7 @@ public class TokenFilter extends OncePerRequestFilter {
         // if token verification fails
         try {
             // verify that token is valid etc.
-            // tokenTools.verifyToken(accessToken);
+            tokenTools.verifyToken(accessToken);
 
         } catch(UnauthorizedException ex) {
             this.sendUnauthorizedErrorResponse(response,"Access token is expired, malformed or has been tampered with. "
@@ -110,27 +114,36 @@ public class TokenFilter extends OncePerRequestFilter {
 
         // ******** AUTHORIZATION ************
 
-        // 1. extract user's ID from token
-        // UUID userId = this.tokenTools.extractIdFromToken(accessToken);
+        UUID userId;
+        
+        try {
+            // 1. extract user's ID from token
+            userId = this.tokenTools.extractIdFromToken(accessToken);
+            
+        } catch(SignatureException ex) {
+            this.sendUnauthorizedErrorResponse(response,"Access token is not valid.");
+            return;
+        }
 
-        // User currentUser;
+        Utente currentUser;
 
         // 2. find user in DB
         try {
-            // currentUser = this.usersService.findById(userId);
+            currentUser = this.utentiService.findById(userId);
         } catch (NotFoundException ex) {
             this.sendUnauthorizedErrorResponse(response,"Access token was valid but "
                                                                 +"the user associated to it no longer exists. User ID was: '"
                                                                 // + userId + "'. Maybe the user was deleted?"
             
             );
+
             return;
         }
-
+        
         // 3. now we need to make this user available to the Security Context
-        // Authentication authentication = new UsernamePasswordAuthenticationToken(currentUser, null, currentUser.getAuthorities());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(currentUser, null, currentUser.getAuthorities());
         // we now set the current user of this request
-        // SecurityContextHolder.getContext().setAuthentication(authentication);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
         // System.out.println("do filter internal called!");
 
@@ -154,9 +167,9 @@ public class TokenFilter extends OncePerRequestFilter {
 
         boolean isAuthPath = matcher.match("/auth/**", path);
         boolean isRoot = matcher.match("/", path);
-        boolean isComuni = matcher.match("/comuni/**", path);
+        // boolean isComuni = matcher.match("/comuni/**", path);
         
-        return isAuthPath || isRoot || isComuni;
+        return isAuthPath || isRoot;
     }
 
 }

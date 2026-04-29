@@ -28,7 +28,6 @@ public class ComuniService {
         Pageable pageable = PageRequest.of(finalPage, finalSize, Sort.by("nomeComune"));
         String matchNomeComune = "%" + nomeComuneParziale.toLowerCase() + "%";
 
-        System.out.println(matchNomeComune);
         return this.comuniRepository.trovaComuniConMatch(matchNomeComune, pageable);
     }
     

@@ -1,14 +1,10 @@
-
-
 # Endpoint
-
 
 ## /auth
 
-
 ### POST /login
 
-Request 
+Request
 
 ```
 {
@@ -19,7 +15,6 @@ Request
 
 Esempio payload in Request
 
-
 ```
 {
     "email": "giuseppetavella8@gmail.com",
@@ -27,7 +22,6 @@ Esempio payload in Request
 }
 
 ```
-
 
 Response
 
@@ -63,7 +57,6 @@ Esempio payload in Request
 }
 ```
 
-
 Response
 
 ```
@@ -72,9 +65,7 @@ Response
 }
 ```
 
-
 ## /clienti
-
 
 ### GET /
 
@@ -100,7 +91,6 @@ un cliente (vedere tabella o DTO relativo)
     
 }
 ```
-
 
 ### POST /
 
@@ -131,10 +121,9 @@ tutto quello in request più
 }
 ```
 
-
 ### DELETE /:clienteId
 
-Request 
+Request
 
 ```
 <no body>
@@ -146,9 +135,7 @@ Response
 <no body>
 ```
 
-
 ## /fatture
-
 
 ### GET /clienti/:clienteId
 
@@ -163,7 +150,6 @@ Response
 ```
 vedi sotto, ricorda che è una lista
 ```
-
 
 ### POST /clienti/:clienteId
 
@@ -185,7 +171,6 @@ tutto quello in request più
     dataCreazione: str
 }
 ```
-
 
 ### PATCH /:fatturaId
 
@@ -217,14 +202,9 @@ Response
 <no body>
 ```
 
-
 ## /ruoli-custom
 
-
-
-
 ### POST /  (aggiungi un ruolo custom)
-
 
 Request
 
@@ -240,16 +220,15 @@ Response
 stesso di richiesta più
 {
     idRuoloCustom: str
+    ruoloCustom: str
 }
 ```
-
 
 ### POST /:ruoloCustomId/utenti/:utenteId  (aggiungi un'associazione tra un ruolo custom e un utente)
 
 Esempio di richiesta:
 
 `/ruoli-custom/sdasd-34234-324sds-343243/utenti/sakdjkda-asdasdasd-asdasd-asdas`
-
 
 Request
 
@@ -263,10 +242,7 @@ Response
 <no body>
 ```
 
-
-
 ### GET /utenti/:utenteId (ottieni i ruoli custom di un utente)
-
 
 Request
 
@@ -280,9 +256,7 @@ Response
 lista di ruoli custom
 ```
 
-
-
-## /sedi 
+## /sedi
 
 ### POST /clienti/:clienteId/comuni/:comuneId
 
@@ -301,21 +275,16 @@ Response
 vedi sopra
 ```
 
-
-
 ## /comuni
-
 
 ### GET /
 
-Request 
+Request
 
-Query params: 
-    nomeComune
+Query params:
+nomeComune
 
-
-
-Response 
+Response
 
 ```
 content: [
@@ -327,18 +296,34 @@ content: [
 ]
 ```
 
+endpoint = verbo + url relativa
+GET /utenti
 
+richiesta
+nessuna richiesta
 
+risposta
 
-
+può essere paginato
+[
+{
+UUID idUtente,
+String username,
+String email,
+String nome,
+String cognome,
+String avatarUrl,
+RuoloUtente ruolo
+}
+]
 
 # PERMESSI
 
-FEATURE             |              USER                   |                ADMIN
+FEATURE | USER | ADMIN
 —--------------------------------------------------------------------------------------
-lettura                                         SI				SI
-inserire clienti                             SI                                  SI
-tutto il resto                                NO                                 SI
+lettura SI SI
+inserire clienti SI SI
+tutto il resto NO SI
 
-
-tutto il resto = aggiungi sede, aggiungi ruoli custom, aggiungi fatture (aggiungi nel senso di modifica/ aggiunta/ rimozione)
+tutto il resto = aggiungi sede, aggiungi ruoli custom, aggiungi fatture (aggiungi nel senso di modifica/ aggiunta/
+rimozione)
