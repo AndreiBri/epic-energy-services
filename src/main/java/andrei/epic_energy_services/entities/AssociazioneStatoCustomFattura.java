@@ -1,8 +1,10 @@
 package andrei.epic_energy_services.entities;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.UUID;
 
@@ -13,12 +15,14 @@ import java.util.UUID;
         }
 )
 @Getter
+@Setter
 @NoArgsConstructor
 public class AssociazioneStatoCustomFattura {
 
     @Id
     @GeneratedValue
     @Column(name = "id_associazione")
+    @Setter(AccessLevel.NONE)
     private UUID idAssociazione;
 
     @ManyToOne
