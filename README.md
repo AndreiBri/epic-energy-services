@@ -121,6 +121,43 @@ tutto quello in request più
 }
 ```
 
+### PATCH (Solo ADMIN) /:clienteId
+
+Se si cambia logo URL e : /:clienteId/logo
+Request
+
+Body bisogna mettere form-data per cambiare logo
+key : logo
+value: file
+
+```
+{
+   Mettere il dato o i dati che che si vogliono cambiare 
+    idClient: str
+    logoAziendaleUrl: str
+}
+```
+
+Response
+
+```
+{
+    "idCliente": "uuid...",
+    "ragioneSociale": ".....",
+    "partitaIva": "....",
+    "email": "...",
+    "pec": "...",
+    "telefono": ".....",
+    "emailContatto": "...",
+    "nomeContatto": "...",
+    "cognomeContatto": "...",
+    "telefonoContatto": "...",
+    "fatturatoAnnuale": ...,
+    "logoAziendaleUrl": "....",
+    "formaGiuridica": "..."
+}
+```
+
 ### DELETE /:clienteId
 
 Request
@@ -214,7 +251,6 @@ Request
 }
 ```
 
-
 ## /ruoli-custom
 
 ### GET /
@@ -239,7 +275,7 @@ Response
 
 ### POST /:ruoloCustomId/utenti/:utenteId  (aggiungi un'associazione tra un ruolo custom e un utente)
 
-Non ritorniamo niente nel payload della risposta, perché tutto quello 
+Non ritorniamo niente nel payload della risposta, perché tutto quello
 che mandiamo è abbastanza. Non ci serve avere niente dopo.
 
 Request
@@ -253,7 +289,6 @@ Response
 ```
 <no body>
 ```
-
 
 ### GET /utenti/:utenteId (ottieni i ruoli custom di un utente)
 
