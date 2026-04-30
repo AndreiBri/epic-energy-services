@@ -1,10 +1,17 @@
 package andrei.epic_energy_services.services;
 
-import andrei.epic_energy_services.entities.*;
+import andrei.epic_energy_services.entities.AssociazioneStatoCustomFattura;
+import andrei.epic_energy_services.entities.Cliente;
+import andrei.epic_energy_services.entities.Fattura;
+import andrei.epic_energy_services.entities.StatoCustomFattura;
 import andrei.epic_energy_services.exceptions.NotFoundException;
-import andrei.epic_energy_services.repositories.*;
+import andrei.epic_energy_services.repositories.AssociazioneStatoCustomFatturaRepository;
+import andrei.epic_energy_services.repositories.ClientiRepository;
+import andrei.epic_energy_services.repositories.FattureRepository;
+import andrei.epic_energy_services.repositories.StatoCustomFatturaRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -34,19 +41,13 @@ public class FattureService {
     }
 
     public Fattura createFattura(UUID idCliente, LocalDate dataCreazione,
-                                 BigDecimal importo, Integer numero, String statoCustom) {
+                                 BigDecimal importo, Integer numero) {
 
         Cliente cliente = clientiRepository.findById(idCliente)
                 .orElseThrow(() -> new NotFoundException("Cliente con id " + idCliente + " non trovato"));
 
-        StatoCustomFattura stato = statoRepository.findByStatoCustom(statoCustom.toLowerCase())
-                .orElseThrow(() -> new NotFoundException("Stato '" + statoCustom + "' non trovato"));
-
         Fattura fattura = new Fattura(cliente, dataCreazione, importo, numero);
         fattureRepository.save(fattura);
-
-        AssociazioneStatoCustomFattura associazione = new AssociazioneStatoCustomFattura(fattura, stato);
-        associazioneRepository.save(associazione);
 
         return fattura;
     }
