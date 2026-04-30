@@ -6,7 +6,6 @@ import andrei.epic_energy_services.exceptions.UnauthorizedException;
 import andrei.epic_energy_services.payloads.in_request.LoginMandatoDTO;
 import andrei.epic_energy_services.payloads.in_request.RegistrazioneMandataDTO;
 import andrei.epic_energy_services.payloads.in_response.LoginDaMandareDTO;
-import andrei.epic_energy_services.payloads.in_response.RegistrazioneDaMandareDTO;
 import andrei.epic_energy_services.security.TokenTools;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,7 +24,7 @@ public class AuthService {
     private TokenTools tokenTools;
 
     /**
-     *  Fai il login di un utente.
+     * Fai il login di un utente.
      */
     public LoginDaMandareDTO login(LoginMandatoDTO body) throws NotFoundException {
 
@@ -54,7 +53,7 @@ public class AuthService {
         } catch (NotFoundException ex) {
             throw new UnauthorizedException("Wrong credentials.");
         }
-        
+
 
         return new LoginDaMandareDTO(accessToken);
 
@@ -64,12 +63,11 @@ public class AuthService {
     /**
      * Register/sign up a user.
      */
-    public RegistrazioneDaMandareDTO register(RegistrazioneMandataDTO body) {
+    public Utente register(RegistrazioneMandataDTO body) {
 
         // add a user to DB
-        Utente newUser = this.utentiService.create(body);
-        
-        return new RegistrazioneDaMandareDTO(newUser);
+        return this.utentiService.create(body);
+
     }
-    
+
 }
