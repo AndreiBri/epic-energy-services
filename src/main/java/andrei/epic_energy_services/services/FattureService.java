@@ -67,7 +67,7 @@ public class FattureService {
         StatoCustomFattura nuovoStato = statoRepository.findByStatoCustom(statoCustom.toLowerCase())
                 .orElseThrow(() -> new NotFoundException("Stato '" + statoCustom + "' non trovato"));
 
-        associazione.setStatoCustomFattura(nuovoStato);
+//        associazione.setStatoCustomFattura(nuovoStato);
         associazioneRepository.save(associazione);
 
         return fattureRepository.save(fattura);
