@@ -1,5 +1,6 @@
 package andrei.epic_energy_services.services;
 
+import andrei.epic_energy_services.entities.Cliente;
 import andrei.epic_energy_services.entities.Utente;
 import andrei.epic_energy_services.services.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,22 @@ public class AppEmailService extends EmailService {
 
         this.sendEmail(utente.getEmail(), "Welcome to Epic Energy Services", htmlBody);
     }
+
+
+    /**
+     * Manda fattura.
+     */
+    public void mandaEmailFatturaACliente(Cliente cliente) {
+        Context context = new Context();
+        context.setVariable("firstname", cliente.getNomeContatto());
+
+        String htmlBody = templateEngine.process("emails/fattura", context);
+
+        this.sendEmail(cliente.getEmail(), "You received a new invoice", htmlBody);
+    }
+    
+    
+    
     
 
 }

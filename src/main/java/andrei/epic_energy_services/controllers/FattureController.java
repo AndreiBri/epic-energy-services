@@ -2,9 +2,11 @@ package andrei.epic_energy_services.controllers;
 
 import andrei.epic_energy_services.entities.Fattura;
 import andrei.epic_energy_services.payloads.in_request.NuovaFatturaMandataDTO;
+import andrei.epic_energy_services.services.AppEmailService;
 import andrei.epic_energy_services.services.FattureService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +26,9 @@ import java.util.UUID;
 public class FattureController {
 
     private final FattureService fattureService;
+    
+    @Autowired
+    private AppEmailService appEmailService;
 
     @GetMapping
     public Page<Fattura> getAllFatture(
@@ -52,12 +57,19 @@ public class FattureController {
     public Fattura createFattura(
             @RequestBody @Valid NuovaFatturaMandataDTO body
     ) {
-        return fattureService.createFattura(
+        Fattura fattura = fattureService.createFattura(
                 body.idCliente(),
                 body.dataCreazione(),
                 body.importo(),
                 body.numero()
         );
+        
+        // fattura.getCliente()
+        this.appEmailService.mandaEmailFatturaACliente(fattura.getCliente());
+        // una volta creata con successo la fattura, 
+        // mandiamo l'email al cliente
+        
+        return fattura;
     }
 
 //    @PutMapping("/{idFattura}")
