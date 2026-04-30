@@ -25,7 +25,7 @@ public class ComuniController {
      * Trova comuni con questo match al nome del comune.
      */
     @GetMapping
-    public Page<ComuneDaMandareDTO> findOwnArticles(@RequestParam(defaultValue = "0") int page,
+    public Page<ComuneDaMandareDTO> trovaComuni(@RequestParam(defaultValue = "0") int page,
                                                     @RequestParam(defaultValue = "10") int size,
                                                     @RequestParam(defaultValue = "") String nomeComune) throws InvalidDataException
     {

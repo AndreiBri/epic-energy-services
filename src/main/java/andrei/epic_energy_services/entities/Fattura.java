@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -31,6 +32,9 @@ public class Fattura {
 
     @Column(nullable = false)
     private Integer numero;
+
+    @OneToMany(mappedBy = "fattura")
+    private List<AssociazioneStatoCustomFattura> associazioniStati;
 
     public Fattura(Cliente cliente, LocalDate dataCreazione, BigDecimal importo, Integer numero) {
         this.cliente = cliente;

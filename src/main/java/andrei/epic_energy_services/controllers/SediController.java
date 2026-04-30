@@ -31,7 +31,7 @@ public class SediController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    // @PreAuthorize("hasAnyAuthority('ADMIN')")
     public Sede createSede(
             @RequestParam UUID idCliente,
             @RequestBody @Valid SedeDTO body

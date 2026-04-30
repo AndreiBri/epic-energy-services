@@ -1,6 +1,7 @@
 package andrei.epic_energy_services.entities;
 
 import andrei.epic_energy_services.enums.FormaGiuridica;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,6 +11,8 @@ import org.hibernate.proxy.HibernateProxy;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -52,9 +55,9 @@ public class Cliente {
     @Column(columnDefinition = "text")
     private String logoAziendaleUrl;
 
-    // aggiungere relazione con Sede quando i colleghi implementano l'entita
-    // @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL)
-    // private List<Sede> sedi = new ArrayList<>();
+    @JsonIgnore
+    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL)
+    private List<Sede> sedi = new ArrayList<>();
 
     // ---------- equals e hashCode ----------
     @Override

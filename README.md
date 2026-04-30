@@ -214,21 +214,33 @@ Request
 }
 ```
 
+
+## /ruoli-custom
+
+### GET /
+
+Request
+
+```
+<no body>
+```
+
 Response
 
 ```
-stesso di richiesta più
-{
-    idRuoloCustom: str
-    ruoloCustom: str
-}
+[
+    {
+        idRuoloCustom: str
+        ruoloCustom: str   
+    }
+]
+
 ```
 
 ### POST /:ruoloCustomId/utenti/:utenteId  (aggiungi un'associazione tra un ruolo custom e un utente)
 
-Esempio di richiesta:
-
-`/ruoli-custom/sdasd-34234-324sds-343243/utenti/sakdjkda-asdasdasd-asdasd-asdas`
+Non ritorniamo niente nel payload della risposta, perché tutto quello 
+che mandiamo è abbastanza. Non ci serve avere niente dopo.
 
 Request
 
@@ -241,6 +253,7 @@ Response
 ```
 <no body>
 ```
+
 
 ### GET /utenti/:utenteId (ottieni i ruoli custom di un utente)
 
