@@ -2,6 +2,7 @@ package andrei.epic_energy_services.controllers;
 
 import andrei.epic_energy_services.payloads.in_response.UtenteResponseDTO;
 import andrei.epic_energy_services.services.UtentiService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,6 +20,7 @@ public class UtentiController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public List<UtenteResponseDTO> findAll() {
         return utentiService.findAll().stream().map(utente -> {
             return new UtenteResponseDTO(utente);

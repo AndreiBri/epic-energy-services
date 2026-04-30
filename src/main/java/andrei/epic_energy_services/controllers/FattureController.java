@@ -1,11 +1,14 @@
 package andrei.epic_energy_services.controllers;
 
 import andrei.epic_energy_services.entities.Fattura;
-import andrei.epic_energy_services.payloads.in_request.FatturaDTO;
+import andrei.epic_energy_services.payloads.in_request.NuovaFatturaMandataDTO;
 import andrei.epic_energy_services.services.FattureService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -47,32 +50,29 @@ public class FattureController {
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     public Fattura createFattura(
-            @RequestParam UUID idCliente,
-            @RequestBody @Valid FatturaDTO body
+            @RequestBody @Valid NuovaFatturaMandataDTO body
     ) {
         return fattureService.createFattura(
-                idCliente,
+                body.idCliente(),
                 body.dataCreazione(),
                 body.importo(),
-                body.numero(),
-                body.statoCustom()
+                body.numero()
         );
     }
 
-    @PutMapping("/{idFattura}")
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
-    public Fattura updateFattura(
-            @PathVariable UUID idFattura,
-            @RequestBody @Valid FatturaDTO body
-    ) {
-        return fattureService.updateFattura(
-                idFattura,
-                body.dataCreazione(),
-                body.importo(),
-                body.numero(),
-                body.statoCustom()
-        );
-    }
+//    @PutMapping("/{idFattura}")
+//    @PreAuthorize("hasAnyAuthority('ADMIN')")
+//    public Fattura updateFattura(
+//            @PathVariable UUID idFattura,
+//            @RequestBody @Valid NuovaFatturaMandataDTO body
+//    ) {
+//        return fattureService.updateFattura(
+//                idFattura,
+//                body.dataCreazione(),
+//                body.importo(),
+//                body.numero()
+//        );
+//    }
 
     @DeleteMapping("/{idFattura}")
     @ResponseStatus(HttpStatus.NO_CONTENT)

@@ -18,7 +18,7 @@ public record NuovoClienteMandatoDTO(
         @NotBlank(message = "nome del cliente è obbligatorio") String nomeContatto,
         @NotBlank(message = "cognome del cliente è obbligatorio") String cognomeContatto,
         @NotBlank(message = "telefono per contattare cliente  è obbligatorio") String telefonoContatto,
-        @NotBlank(message = "media fatturato è obbligatorio") BigDecimal fatturatoAnnuale,
+        BigDecimal fatturatoAnnuale,
         @NotNull(message = "Scegli una forma giuridica tra : PA,SPA,SRLS,SRL,SAS") FormaGiuridica formaGiuridica
 ) {
 }

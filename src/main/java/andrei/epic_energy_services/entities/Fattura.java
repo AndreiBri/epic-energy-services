@@ -1,7 +1,12 @@
 package andrei.epic_energy_services.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -34,6 +39,7 @@ public class Fattura {
     private Integer numero;
 
     @OneToMany(mappedBy = "fattura")
+    @JsonIgnore
     private List<AssociazioneStatoCustomFattura> associazioniStati;
 
     public Fattura(Cliente cliente, LocalDate dataCreazione, BigDecimal importo, Integer numero) {

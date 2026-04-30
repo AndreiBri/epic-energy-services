@@ -1,10 +1,6 @@
 package andrei.epic_energy_services.entities;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.util.UUID;
 
@@ -14,15 +10,11 @@ import java.util.UUID;
                 @UniqueConstraint(columnNames = {"id_fattura", "id_stato_custom"})
         }
 )
-@Getter
-@Setter
-@NoArgsConstructor
 public class AssociazioneStatoCustomFattura {
 
     @Id
     @GeneratedValue
     @Column(name = "id_associazione")
-    @Setter(AccessLevel.NONE)
     private UUID idAssociazione;
 
     @ManyToOne
@@ -37,4 +29,21 @@ public class AssociazioneStatoCustomFattura {
         this.fattura = fattura;
         this.statoCustomFattura = statoCustomFattura;
     }
+
+    protected AssociazioneStatoCustomFattura() {
+
+    }
+
+    public UUID getIdAssociazione() {
+        return idAssociazione;
+    }
+
+    public Fattura getFattura() {
+        return fattura;
+    }
+
+    public StatoCustomFattura getStatoCustomFattura() {
+        return statoCustomFattura;
+    }
+
 }
